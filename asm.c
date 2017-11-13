@@ -159,4 +159,5 @@ char convertOpcode(char* opcode)
 		{
 			return (char)15;
 		}
+	return (char)16;
 }
