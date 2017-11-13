@@ -2,7 +2,7 @@
 
 char* parseCommand(char* cmd)
 {
-
+	char* string;
 
 	return NULL;
 }
