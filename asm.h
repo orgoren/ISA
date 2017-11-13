@@ -7,6 +7,7 @@
 
 char* parseCommand(const char* cmd);
 
+char convertRegister(char* reg);
 
 char* createString(char* opcode, char* rd, char* rs, char* rt, char* imm);
 
