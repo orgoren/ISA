@@ -11,4 +11,6 @@ char convertRegister(char* reg);
 
 char* createString(char* opcode, char* rd, char* rs, char* rt, char* imm);
 
+
+char convertOpcode(char* opcode);
 #endif /* ASM_H_ */
