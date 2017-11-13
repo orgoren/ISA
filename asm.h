@@ -2,11 +2,12 @@
 #define ASM_H_
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
-char* parseCommand(char* cmd);
+char* parseCommand(const char* cmd);
 
 
-
+char* createString(char* opcode, char* rd, char* rs, char* rt, char* imm);
 
 #endif /* ASM_H_ */
