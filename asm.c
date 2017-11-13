@@ -161,3 +161,10 @@ char convertOpcode(char* opcode)
 		}
 	return (char)16;
 }
+
+char mergeIntoChar(char bigger, char smaller)
+{
+	char result = bigger<<4;
+	result = result | smaller;
+	return result;
+}
