@@ -13,4 +13,7 @@ char* createString(char* opcode, char* rd, char* rs, char* rt, char* imm);
 
 
 char convertOpcode(char* opcode);
+
+char mergeIntoInt(char bigger, char smaller);
+
 #endif /* ASM_H_ */

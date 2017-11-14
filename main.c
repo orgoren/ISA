@@ -4,8 +4,13 @@
 
 int main(int argc, char** argv)
 {
-	char* a = parseCommand("good 	bad bad very bad, moy bad");
+//	char* a = parseCommand("good 	bad bad very bad, moy bad");
+	char* b = "0xff12";
+//	int i = atoi(b);
+//	printf("num i: %d", i);
+	b = b + 2;
+	printf("b: %s", b);
 	printf("yo\n");
-	printf("comm: %s.", a);
+//	printf("comm: %s.", a);
 	return 1;
 }
