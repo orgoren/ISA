@@ -1,24 +1,42 @@
 #include "asm.h"
 
-char* parseCommand(const char* cmd)
+void parseCommand(const char* cmd, char* result)
 {
 	char line[500];
 	char s[] = " ,\t\r\n";
 	strcpy(line, cmd);
-	char* opcode = strtok(line, s);
-	char* rd = strtok(NULL, s);
-	char* rs = strtok(NULL, s);
-	char* rt = strtok(NULL, s);
-	char* imm = strtok(NULL, s);
-	//opcode = convertOpcode(opcode);
+	char* opcodeStr = strtok(line, s);
+	char* rdStr = strtok(NULL, s);
+	char* rsStr = strtok(NULL, s);
+	char* rtStr = strtok(NULL, s);
+	char* immStr = strtok(NULL, s);
 
+	char opcode = convertOpcode(opcodeStr);
 
-	return opcode;
+	char rd = convertRegister(rdStr);
+	char rt = convertRegister(rtStr);
+	char rs = convertRegister(rsStr);
+	printf("rs = %d\n", rs);
+	char imm[5];
+	convertImmediate(immStr, imm);
 
+	printf("rs=%s\n", rsStr);
+	printf("opcode=%c, rd=%c, rs=%c, rt=%c\n", opcode, rd, rs, rt);
+
+	result[0] = opcode;
+	result[1] = rd;
+	result[2] = rs;
+	result[3] = rt;
+	result[4] = imm[0];
+	result[5] = imm[1];
+	result[6] = imm[2];
+	result[7] = imm[3];
+	result[8] = '\0';
 }
 
 char convertRegister(char* reg)
 {
+	printf("reg=%s\n", reg);
 	if(!strcmp(reg, "$zero"))
 	{
 		return '0';
@@ -87,12 +105,6 @@ char convertRegister(char* reg)
 	return (char)16;
 }
 
-char* createString(char* opcode, char* rd, char* rs, char* rt, char* imm)
-{
-
-
-}
-
 char convertOpcode(char* opcode)
 {
 	if(!strcmp(opcode, "add"))
@@ -159,26 +171,46 @@ char convertOpcode(char* opcode)
 		{
 			return 'F';
 		}
-	return (char)16;
+	return 'G';
 }
 
-void mergeFourMSB(char great, char second, char third ,char last, char* result)
+void convertDecToHex(int a, char* result)
 {
-//	char* result[4];
-	result[0] = great;
-	result[1] = second;
-	result[2] = third;
-	result[3] = last;
-//	return result;
+	int i;
+	int t;
+	int mask = 15;
+	for(i = 3; i >= 0; i--)
+	{
+		t = mask & a;
+		if (t > 9)
+		{
+			result[i] = 'A' + t - 10;
+		}
+		else
+		{
+			result[i] = '0' + (char)(mask & a);
+		}
+
+		a >>= 4;
+	}
+	result[4] = '\0';
+
 }
 
 void convertImmediate(char* imm, char* result)
 {
-//	char* result;
 	if((imm[0] == '0') &&(imm[1] = 'x'))
 	{
-		result = imm + 2;
-//		return result;
-	}else if
+		//result = imm + 2;
+		result[0] = imm[2];
+		result[1] = imm[3];
+		result[2] = imm[4];
+		result[3] = imm[5];
+		result[4] = '\0';
 
+	}
+	else
+	{
+		convertDecToHex(atoi(imm), result);
+	}
 }

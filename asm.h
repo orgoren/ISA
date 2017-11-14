@@ -4,16 +4,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
-char* parseCommand(const char* cmd);
+void parseCommand(const char* cmd, char* result);
 
 char convertRegister(char* reg);
 
-char* createString(char* opcode, char* rd, char* rs, char* rt, char* imm);
-
-
 char convertOpcode(char* opcode);
 
+void convertDecToHex(int a, char* result);
+
 char mergeIntoInt(char bigger, char smaller);
+
+void convertImmediate(char* imm, char* result);
 
 #endif /* ASM_H_ */
