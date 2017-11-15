@@ -266,3 +266,23 @@ int isThereLabelInIt(char* getline,char* label)
 		}
 	}
 }
+
+void readFile(char* path)
+{
+	FILE* f;
+
+	f = fopen(path, "r");
+	if(!f)
+	{
+		printf("Can't open File\n");
+		return;
+	}
+
+	char buffer[500];
+
+	while(fgets(buffer, 500, f))
+	{
+
+
+	}
+}

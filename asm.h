@@ -18,4 +18,6 @@ char mergeIntoInt(char bigger, char smaller);
 
 void convertImmediate(char* imm, char* result);
 
+void readFile(char* path);
+
 #endif /* ASM_H_ */

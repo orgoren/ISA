@@ -21,11 +21,13 @@ int main(int argc, char** argv)
 	int d = strlen(b);
 	printf("len: %d", d);
 
-	char result[9];
+//	char* a = "add $a0 $t2 $s2 1234";
 
-	parseCommand(a, result);
+//	char result[9];
 
-	printf("result: %s\n", result);
+//	parseCommand(a, result);
 
+//	printf("result: %s\n", result);
 
+	readFile("Debug/aaa");
 }
