@@ -17,6 +17,9 @@ int main(int argc, char** argv)
 	*/
 
 	char* a = "add $a0 $t2 $s2 1234";
+	char* b = "label34:";
+	int d = strlen(b);
+	printf("len: %d", d);
 
 	char result[9];
 

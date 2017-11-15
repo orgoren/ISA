@@ -214,3 +214,55 @@ void convertImmediate(char* imm, char* result)
 		convertDecToHex(atoi(imm), result);
 	}
 }
+
+
+int isThereLabelInIt(char* getline,char* label)
+{
+	// return 0 if there is no label
+	// return 1 if there is label but no cmd in this line
+	// return 2 if there is a label and cmd in this line
+	// what about a line with two labels, one in the first word and one in the immediate?
+	char line[500];
+	char s[] = " ,\t\r\n";
+	strcpy(line, getline);
+	char* firstWord = strtok(line, s);
+	char* secondWord;
+	char* imm;
+	int lenword = strlen(firstWord);
+	if(firstWord[strlen-1] == ':')
+	{
+		strcpy(label, firstWord);
+		label[strlen] = '\0';
+		secondWord = strtok(line, s);
+		if(!secondWord)
+		{
+			printf("there is no legal optcode in this line, step forward");
+			return 1;
+		}
+		else if (secondWord[0] =='#')
+		{
+			printf("there is no legal optcode in this line, step forward");
+			return 1;
+		}
+		else
+		{
+			printf("there is optcode and label in this line");
+			return 2;
+		}
+	}
+	else
+	{
+		printf("there is no label in the first word here");
+		return 0;
+	}
+	int optNumber = isCMD(firstWord);
+	if(optNumber != -1)
+	{
+		if (optNumber == 1)
+		{
+			printf("there is a branch cmd - need to remember relative jump");
+			getImm(firstWord, imm); //jump to immm and check if it a label
+
+		}
+	}
+}
