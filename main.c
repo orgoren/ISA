@@ -16,13 +16,13 @@ int main(int argc, char** argv)
 	return 1;
 	*/
 
-	char* a = "add $a0 $t2 $s2 1234";
+//	char* a = "add $a0 $t2 $s2 1234";
 
-	char result[9];
+//	char result[9];
 
-	parseCommand(a, result);
+//	parseCommand(a, result);
 
-	printf("result: %s\n", result);
+//	printf("result: %s\n", result);
 
-
+	readFile("Debug/aaa");
 }
