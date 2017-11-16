@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "asm.h"
 
+//we made several strcpy in small functions, should we free their memory?
+
 int main(int argc, char** argv)
 {
 	/*

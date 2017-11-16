@@ -215,7 +215,6 @@ void convertImmediate(char* imm, char* result)
 	}
 }
 
-
 int isThereLabelInIt(char* getline,char* label)
 {
 	// return 0 if there is no label
@@ -265,6 +264,42 @@ int isThereLabelInIt(char* getline,char* label)
 
 		}
 	}
+}
+
+void getImm(char* firstWord, char* imm)
+{
+	//not sure the logic is right(suppose to retrieve the imm based on the optcode(=firstWord)
+	char line[500];
+	char s[] = " ,\t\r\n";
+	strcpy(line, firstWord);
+	char* rdStr = strtok(NULL, s);
+	char* rsStr = strtok(NULL, s);
+	char* rtStr = strtok(NULL, s);
+	char* immStr = strtok(NULL, s);
+	imm = immStr;
+}
+
+int isCMD(char* firstWord)
+{
+	if(strlen(firstWord >= 2))
+	{
+		printf("the word we get is not a cmd");
+		return -1;
+	}
+	char cmd[3];
+	strcpy(cmd, firstWord);
+	//should we check the strcpy success?
+	if((strcmp(cmd, "beq") == 0) || (strcmp(cmd, "bgt") == 0) || (strcmp(cmd, "ble") == 0) || (strcmp(cmd, "bne") == 0))
+	{
+		printf("we need a relative imm replacement");
+		return 1;
+	}
+	if((strcmp(cmd, "jal") == 0) || (strcmp(cmd, "jr") == 0)) //what abput 'lw' and 'sw'?
+	{
+		printf("we need an absolute imm replacement");
+		return 2;
+	}
+	return -1;
 }
 
 void readFile(char* path)
