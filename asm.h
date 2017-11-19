@@ -6,6 +6,10 @@
 #include <string.h>
 #include <stdbool.h>
 
+#define MAX_ROW_LENGTH 500
+#define MAX_ROWS 65535
+#define MAX_LABEL_LENGTH 50
+
 void parseCommand(const char* cmd, char* result);
 
 char convertRegister(char* reg);
@@ -26,6 +30,8 @@ int isCMD(char* firstWord);
 
 void readFile(char* path);
 
+bool isBufferHasLabel(char* line, char* label);
 
+char* changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel);
 
 #endif /* ASM_H_ */

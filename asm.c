@@ -230,7 +230,6 @@ int isThereLabelInIt(char* getline,char* label)
 	strcpy(line, getline);
 	char* firstWord = strtok(line, s);
 	char* secondWord;
-	char* imm;
 	int tempCheckIsCmd = 0;
 	int lenword = strlen(firstWord);
 	if( firstWord[0] == '#')
@@ -266,6 +265,10 @@ int isThereLabelInIt(char* getline,char* label)
 				printf("there is WORD CMD");
 				return 1;
 			}
+			else
+			{
+				return 0; ///////////////////////////////////not true
+			}
 		}
 	}
 	else
@@ -292,6 +295,10 @@ int isThereLabelInIt(char* getline,char* label)
 //	}
 }
 
+char* changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel)
+{
+	return NULL;
+}
 //void getImm(char* firstWord, char* imm)
 //{
 //	//not sure the logic is right(suppose to retrieve the imm based on the optcode(=firstWord)
@@ -319,6 +326,39 @@ int isThereLabelInIt(char* getline,char* label)
 //	}
 //}
 
+bool isBufferHasLabel(char* line, char* label)
+{
+	char s[] = " ,\t\r\n";
+	char* oc = strtok(line, s);
+	char* r1 = strtok(NULL, s);
+	char* r2 = strtok(NULL, s);
+	char* r3 = strtok(NULL, s);
+	char* im = strtok(NULL, s);
+	if(!im)
+	{
+		return false;
+	}
+	if(strlen(im) == 1)
+	{
+		if (im[0] >= '0' && im[0] <= '9')
+		{
+			return false;
+		}
+		else
+		{
+			strcpy(label, im);
+			return true;
+		}
+	}
+
+	if((im[0] >= 'A' && im[0] <= 'Z') || (im[1] >= 'a' && im[0] <= 'z'))
+	{
+		return true;
+	}
+
+	strcpy(label, im);
+	return false;
+}
 
 int isCMD(char* firstWord)
 {
@@ -365,9 +405,10 @@ int whichOptCode(char* Word)
 void readFile(char* path)
 {
 	FILE* f;
-	char buffer[500];
+	char buffer[MAX_ROW_LENGTH];
+	char newLine[MAX_ROW_LENGTH];
 	char* firstWord;
-	char* templabel; ///////////////12134314
+	int i, labelIndex;
 	char s[] = " ,\t\r\n";
 	f = fopen(path, "r");
 	int cmdCounter = 0;
@@ -377,11 +418,11 @@ void readFile(char* path)
 		return;
 	}
 	int tempcheck = 0;
-	char* labels[65535];
-	char label[50];
-	while(fgets(buffer, 500, f))
+	char* labels[MAX_ROWS];
+	char label[MAX_LABEL_LENGTH];
+	while(fgets(buffer, MAX_ROW_LENGTH, f))
 	{
-		if(buffer == "")
+		if(!strcmp(buffer, ""))
 		{
 			continue;
 		}
@@ -402,42 +443,41 @@ void readFile(char* path)
 	}
 	cmdCounter = 0;
 	fseek(f, 0, SEEK_SET);
-	while(fgets(buffer, 500, f))
+	while(fgets(buffer, MAX_ROW_LENGTH, f))
 	{
-//		if((buffer == "") || (buffer[0] = '#'))
-//		{
-//			continue;
-//		}
 		firstWord = strtok(buffer, s);
 		if((!firstWord))
 		{
 			continue;
 		}
 
-		if(buffer has label)
+		if(isBufferHasLabel(buffer, label))
 		{
+			for(i = 0; i < MAX_ROWS; i++)
+			{
+				if(!(strcmp(label, labels[i])))
+				{
+					labelIndex = i;
+					break;
+				}
+			}
+
 			tempcheck = whichOptCode(firstWord);
 			if(tempcheck == -1)
 			{
 				continue;
 			}
-			else if (tempcheck == 0)
+
+			if(tempcheck == 1)
 			{
-				cmdCounter++;
+				changeLine(buffer, labelIndex, cmdCounter, true);
 			}
-			else if(tempcheck == 1)
+			else if(tempcheck == 2)
 			{
-				//copy pointer
-				//strtok to label\imm
-				//check if label\
-				// look up in array and reteive number
-				//send to or's function
+				changeLine(buffer, labelIndex, cmdCounter, false);
 			}
+			cmdCounter++;
 		}
-
-		parsecommand(buffer);
-
-
 	}
 	//close the file?
 }
