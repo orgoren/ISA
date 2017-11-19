@@ -18,10 +18,18 @@ int main(int argc, char** argv)
 	return 1;
 	*/
 
-	char* a = "add $a0 $t2 $s2 1234";
+	char* a = "abc:";
 	char* b = "label34:";
-	int d = strlen(b);
-	printf("len: %d", d);
+	int d = 0;
+	if (a[3] == ':')
+	{
+		printf("good");
+	}
+	else
+	{
+		printf("bad");
+	}
+//	printf("len: %d", d);
 
 //	char* a = "add $a0 $t2 $s2 1234";
 
@@ -31,5 +39,5 @@ int main(int argc, char** argv)
 
 //	printf("result: %s\n", result);
 
-	readFile("Debug/aaa");
+//	readFile("Debug/aaa");
 }
