@@ -215,9 +215,6 @@ void convertImmediate(char* imm, char* result)
 	}
 }
 
-//void* updatingLabelsArray(char* labels[65300])
-
-
 int isThereLabelInIt(char* getline,char* label)
 {
 	// return 0 if there is no label
@@ -307,32 +304,6 @@ void changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel, char*
 
 	}
 }
-//void getImm(char* firstWord, char* imm)
-//{
-//	//not sure the logic is right(suppose to retrieve the imm based on the optcode(=firstWord)
-//	char line[500];
-//	char s[] = " ,\t\r\n";
-//	strcpy(line, firstWord);
-//	char* rdStr = strtok(NULL, s);
-//	char* rsStr = strtok(NULL, s);
-//	char* rtStr = strtok(NULL, s);
-//	char* immStr = strtok(NULL, s);
-//	imm = immStr;
-//}
-
-//int isThereACommand(char* firstWord)
-//{
-//	if(firstWord[0] == '#')
-//	{
-//		printf("there is a no command here");
-//		return 0;
-//	}
-//	else
-//	{
-//		printf("there is a command here");
-//		return 0;
-//	}
-//}
 
 bool isBufferHasLabel(char* line, char* label)
 {
@@ -409,10 +380,17 @@ int whichOptCode(char* Word)
 	return 0;
 }
 
-
-void readFile(char* path)
+void readFile(char* path,char* path_out)
 {
 	FILE* f;
+	FILE* output;
+	char hexline[10];
+	output = fopen(path, "w");
+	if(!output)
+		{
+			printf("Can't open File\n");
+			return;
+		}
 	char buffer[MAX_ROW_LENGTH];
 	char newLine[MAX_ROW_LENGTH];
 	char* firstWord;
@@ -471,6 +449,12 @@ void readFile(char* path)
 			}
 
 			tempcheck = whichOptCode(firstWord);
+			if(tempcheck == 0)
+			{
+				parseCommand(buffer, hexline); //need to add \n at the end; OR is buffer == line ?
+				fprintf(output, hexline);
+				cmdCounter++;
+			}
 			if(tempcheck == -1)
 			{
 				continue;
@@ -479,13 +463,18 @@ void readFile(char* path)
 			if(tempcheck == 1)
 			{
 				changeLine(buffer, labelIndex, cmdCounter, true, newLine);
+				parseCommand(newLine, hexline); //need to add \n at the end;
+				fprintf(output, hexline);
 			}
 			else if(tempcheck == 2)
 			{
 				changeLine(buffer, labelIndex, cmdCounter, false, newLine);
+				parseCommand(newLine, hexline); //need to add \n at the end;
+				fprintf(output, hexline);
 			}
-			cmdCounter++;
 		}
 	}
-	//close the file?
+	//add 0000000 to from and cmdcounter til end of file
+	//WORD command - OR goren
+	//close both files
 }

@@ -18,20 +18,18 @@ char convertOpcode(char* opcode);
 
 void convertDecToHex(int a, char* result);
 
-//char mergeIntoInt(char bigger, char smaller);
-
 void convertImmediate(char* imm, char* result);
 
 int isThereLabelInIt(char* getline,char* label);
 
-void getImm(char* firstWord, char* imm);
-
-int isCMD(char* firstWord);
-
-void readFile(char* path);
+void changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel, char* newLine);
 
 bool isBufferHasLabel(char* line, char* label);
 
-void changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel, char* newLine);
+int isCMD(char* firstWord);
+
+int whichOptCode(char* Word);
+
+void readFile(char* path);
 
 #endif /* ASM_H_ */
