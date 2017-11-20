@@ -32,6 +32,6 @@ void readFile(char* path);
 
 bool isBufferHasLabel(char* line, char* label);
 
-char* changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel);
+void changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel, char* newLine);
 
 #endif /* ASM_H_ */

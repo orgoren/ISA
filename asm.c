@@ -295,9 +295,17 @@ int isThereLabelInIt(char* getline,char* label)
 //	}
 }
 
-char* changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel)
+void changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel, char* newLine)
 {
-	return NULL;
+	//should i jump 4 strtok to imm?
+	if(isRel)
+	{
+		//goren goren goren
+	}
+	else
+	{
+
+	}
 }
 //void getImm(char* firstWord, char* imm)
 //{
@@ -429,7 +437,7 @@ void readFile(char* path)
 		tempcheck = isThereLabelInIt(buffer,label);
 		if(tempcheck ==1)
 		{
-			labels[cmdCounter] = label; //is that the right way to instert a string to an array?
+			labels[cmdCounter] = label; //is that the right way to insert a string to an array?
 		}
 		else if (tempcheck == 2)
 		{
@@ -470,11 +478,11 @@ void readFile(char* path)
 
 			if(tempcheck == 1)
 			{
-				changeLine(buffer, labelIndex, cmdCounter, true);
+				changeLine(buffer, labelIndex, cmdCounter, true, newLine);
 			}
 			else if(tempcheck == 2)
 			{
-				changeLine(buffer, labelIndex, cmdCounter, false);
+				changeLine(buffer, labelIndex, cmdCounter, false, newLine);
 			}
 			cmdCounter++;
 		}
