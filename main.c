@@ -2,14 +2,14 @@
 #include <stdlib.h>
 #include "asm.h"
 #include <regex.h>
-//we made several strcpy in small functions, should we free their memory?
+#include <assert.h>
+
+//we made several strcpy in small functions, should we free their memory? NO
 
 int main(int argc, char** argv)
 {
-	char b[] = "64374823fsdfdsfsdfdsdd";
+	assert(argc == 3);
 
-	int a = atoi(b);
-
-	printf("%d\n", a);
+	readFile(argv[1], argv[2]);
 
 }

@@ -5,6 +5,7 @@ void parseCommand(const char* cmd, char* result)
 	char line[500];
 	char s[] = " ,\t\r\n";
 	strcpy(line, cmd);
+	printf("parseCommand: line is: %s\n", line);
 	char* opcodeStr = strtok(line, s);
 	char* rdStr = strtok(NULL, s);
 	char* rsStr = strtok(NULL, s);
@@ -16,13 +17,14 @@ void parseCommand(const char* cmd, char* result)
 	char rd = convertRegister(rdStr);
 	char rt = convertRegister(rtStr);
 	char rs = convertRegister(rsStr);
-	printf("rs = %d\n", rs);
 	char imm[5];
-	convertImmediate(immStr, imm);
-
-	printf("rs=%s\n", rsStr);
-	printf("opcode=%c, rd=%c, rs=%c, rt=%c\n", opcode, rd, rs, rt);
-
+	char label[MAX_LABEL_LENGTH];
+	strcpy(line, cmd);
+	if (!isBufferHasLabel(line, label))
+	{
+		printf("convert\n");
+		convertImmediate(immStr, imm);
+	}
 	result[0] = opcode;
 	result[1] = rd;
 	result[2] = rs;
@@ -31,7 +33,8 @@ void parseCommand(const char* cmd, char* result)
 	result[5] = imm[1];
 	result[6] = imm[2];
 	result[7] = imm[3];
-	result[8] = '\0';
+	result[8] = '\n';
+	printf("finnaly the result is: %s\n", result);
 }
 
 char convertRegister(char* reg)
@@ -107,6 +110,7 @@ char convertRegister(char* reg)
 
 char convertOpcode(char* opcode)
 {
+	printf("opcode is: %s\n", opcode);
 	if(!strcmp(opcode, "add"))
 	{
 		return '0';
@@ -116,61 +120,61 @@ char convertOpcode(char* opcode)
 		return '1';
 	}
 	else if(!strcmp(opcode, "and"))
-		{
+	{
 			return '2';
-		}
+	}
 	else if(!strcmp(opcode, "or"))
-		{
+	{
 			return '3';
-		}
+	}
 	else if(!strcmp(opcode, "sll"))
-		{
+	{
 			return '4';
-		}
+	}
 	else if(!strcmp(opcode, "sra"))
-		{
+	{
 			return '5';
-		}
+	}
 	else if(!strcmp(opcode, "limm"))
-		{
+	{
 			return '6';
-		}
+	}
 	else if(!strcmp(opcode, "beq"))
-		{
+	{
 			return '7';
-		}
+	}
 	else if(!strcmp(opcode, "bgt"))
-		{
+	{
 			return '8';
-		}
+	}
 	else if(!strcmp(opcode, "ble"))
-		{
+	{
 			return '9';
-		}
+	}
 	else if(!strcmp(opcode, "bne"))
-		{
+	{
 			return 'A';
-		}
+	}
 	else if(!strcmp(opcode, "jal"))
-		{
+	{
 			return 'B';
-		}
+	}
 	else if(!strcmp(opcode, "lw"))
-		{
+	{
 			return 'C';
-		}
+	}
 	else if(!strcmp(opcode, "sw"))
-		{
+	{
 			return 'D';
-		}
+	}
 	else if(!strcmp(opcode, "jr"))
-		{
+	{
 			return 'E';
-		}
+	}
 	else if(!strcmp(opcode, "halt"))
-		{
+	{
 			return 'F';
-		}
+	}
 	return 'G';
 }
 
@@ -197,10 +201,32 @@ void convertDecToHex(int a, char* result)
 
 }
 
+bool isHex(char* num)
+{
+	if(!num)
+	{
+		return false;
+	}
+	if(strlen(num) == 1)
+	{
+		return false;
+	}
+
+	if(num[0] == '0' && num[1] == 'x')
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void convertImmediate(char* imm, char* result)
 {
-	if((imm[0] == '0') &&(imm[1] = 'x'))
+
+	//if((imm[0] == '0') &&(imm[1] == 'x'))
+	if(isHex(imm))
 	{
+		printf("yoyo\n");
 		//result = imm + 2;
 		result[0] = imm[2];
 		result[1] = imm[3];
@@ -211,8 +237,10 @@ void convertImmediate(char* imm, char* result)
 	}
 	else
 	{
+		printf("imm is a dec number\n");
 		convertDecToHex(atoi(imm), result);
 	}
+	printf("imm = %s, result = %s\n", imm, result);
 }
 
 int isThereLabelInIt(char* getline,char* label)
@@ -222,7 +250,7 @@ int isThereLabelInIt(char* getline,char* label)
 	// return 2 if there is a label and cmd in this line
 	//return 3 if there is a command and no label
 	// what about a line with two labels, one in the first word and one in the immediate?  ignore!
-	char line[500];
+	char line[MAX_ROW_LENGTH];
 	char s[] = " ,\t\r\n";
 	strcpy(line, getline);
 	char* firstWord = strtok(line, s);
@@ -231,7 +259,7 @@ int isThereLabelInIt(char* getline,char* label)
 	int lenword = strlen(firstWord);
 	if( firstWord[0] == '#')
 	{
-		printf("there is no label in the first word here");
+		printf("there is no label in the first word here\n");
 		return 0;
 	}
 	if(firstWord[lenword-1] == ':') //check if the first word in line is a label
@@ -241,12 +269,12 @@ int isThereLabelInIt(char* getline,char* label)
 		secondWord = strtok(line, s);
 		if(!secondWord)
 		{
-			printf("there is no legal optcode in this line, step forward");
+			printf("there is no legal optcode in this line, step forward\n");
 			return 1;
 		}
 		else if (secondWord[0] =='#')
 		{
-			printf("there is no legal optcode in this line, step forward");
+			printf("there is no legal optcode in this line, step forward\n");
 			return 1;
 		}
 		else
@@ -254,12 +282,12 @@ int isThereLabelInIt(char* getline,char* label)
 			tempCheckIsCmd = isCMD(secondWord);
 			if(tempCheckIsCmd == 1)
 			{
-				printf("there is cmd and label in this line");
+				printf("there is cmd and label in this line\n");
 				return 2;
 			}
 			else if(tempCheckIsCmd == -1)
 			{
-				printf("there is WORD CMD");
+				printf("there is WORD CMD\n");
 				return 1;
 			}
 			else
@@ -270,12 +298,14 @@ int isThereLabelInIt(char* getline,char* label)
 	}
 	else
 	{
+
 		if (isCMD(firstWord) == 1)
 		{
-			printf("there is only command but no label");
+			printf("there is only command but no label\n");
 			return 3;
 		}
-		else{
+		else
+		{
 			return 0;
 		}
 	}
@@ -294,33 +324,67 @@ int isThereLabelInIt(char* getline,char* label)
 
 void changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel, char* newLine)
 {
-	//should i jump 4 strtok to imm?
+	char s[] = " ,\t\r\n";
+	char* opcodeStr = strtok(currLine, s);
+	char* rdStr = strtok(NULL, s);
+	char* rsStr = strtok(NULL, s);
+	char* rtStr = strtok(NULL, s);
+	char p[] = ", ";
+	char labelReplace[2];
+	int labelLines;
+	strcat(newLine, opcodeStr);
+	strcat(newLine, p);
+	strcat(newLine, rdStr);
+	strcat(newLine, p);
+	strcat(newLine, rsStr);
+	strcat(newLine, p);
+	strcat(newLine, rtStr);
+	strcat(newLine, p);
+
 	if(isRel)
 	{
-		//goren goren goren
+		labelLines = labelIndex - lineIndex;
 	}
 	else
 	{
-
+		labelLines = labelIndex;
 	}
+
+	convertDecToHex(labelLines, labelReplace);
+	strcat(newLine, labelReplace);
+
 }
 
 bool isBufferHasLabel(char* line, char* label)
 {
+	printf("isBufferHashLabel: line is %s\n", line);
 	char s[] = " ,\t\r\n";
 	char* oc = strtok(line, s);
 	char* r1 = strtok(NULL, s);
 	char* r2 = strtok(NULL, s);
 	char* r3 = strtok(NULL, s);
 	char* im = strtok(NULL, s);
+
+
+
+	if(oc[1] == '#')
+	{
+		printf("isBufferhasLabel: the first word has #\n");
+		return false;
+	}
+
 	if(!im)
 	{
 		return false;
 	}
+
+	printf("imm length: %d and is: %s\n", strlen(im), im);
+
 	if(strlen(im) == 1)
 	{
 		if (im[0] >= '0' && im[0] <= '9')
 		{
+			printf("it doesn't have a label and its a number\n");
 			return false;
 		}
 		else
@@ -330,12 +394,13 @@ bool isBufferHasLabel(char* line, char* label)
 		}
 	}
 
-	if((im[0] >= 'A' && im[0] <= 'Z') || (im[1] >= 'a' && im[0] <= 'z'))
+	if((im[0] >= 'A' && im[0] <= 'Z') || (im[0] >= 'a' && im[0] <= 'z'))
 	{
+		strcpy(label, im);
 		return true;
 	}
 
-	strcpy(label, im);
+
 	return false;
 }
 
@@ -343,13 +408,13 @@ int isCMD(char* firstWord)
 {
 	if((strlen(firstWord) > 4) || (strlen(firstWord) < 2))
 	{
-		printf("the word we get is not a cmd");
+		printf("the word we get is not a cmd\n");
 		return -1;
 	}
-	char cmd[4];
+	char cmd[5];
 	strcpy(cmd, firstWord);
 	//should we check the strcpy success?
-	if(strcmp(cmd, "WORD") == 0)
+	if(strcmp(cmd, ".word") == 0)
 	{
 		return -1;
 	}
@@ -380,80 +445,172 @@ int whichOptCode(char* Word)
 	return 0;
 }
 
+void deleteFirstWordFromLine(char* line, char* newLine)
+{
+	char temp[MAX_ROW_LENGTH];
+	strcpy(temp, line);
+	char s[] = " ,\t\r\n";
+	char p[] = ", ";
+	char* t1 = strtok(temp, s);
+	char* t2 = strtok(NULL, s);
+	char* t3 = strtok(NULL, s);
+	char* t4 = strtok(NULL, s);
+	char* t5 = strtok(NULL, s);
+	char* t6 = strtok(NULL, s);
+
+	newLine[0] = '\0';
+
+	strcat(newLine, t2);
+	strcat(newLine, p);
+	strcat(newLine, t3);
+	strcat(newLine, p);
+	strcat(newLine, t4);
+	strcat(newLine, p);
+	strcat(newLine, t5);
+	strcat(newLine, p);
+	strcat(newLine, t6);
+
+	t1 = NULL;
+}
+
+void parseWordCommand(char* command)
+{
+	char temp[MAX_ROW_LENGTH];
+	char s[] = ", \t\r\n";
+	strcpy(temp, command);
+	char* w = strtok(temp, s);
+	char* address = strtok(NULL, s);
+	char* data = strtok(NULL, s);
+
+	if(isHex(address))
+	{
+
+	}
+
+}
+
 void readFile(char* path,char* path_out)
 {
 	FILE* f;
 	FILE* output;
-	char hexline[10];
-	output = fopen(path, "w");
+	char hexline[15] = {0};
+	output = fopen(path_out, "w");
 	if(!output)
-		{
-			printf("Can't open File\n");
-			return;
-		}
+	{
+		printf("Can't open File %s\n", path_out);
+		return;
+	}
 	char buffer[MAX_ROW_LENGTH];
+	char bufferCopy[MAX_ROW_LENGTH];
 	char newLine[MAX_ROW_LENGTH];
 	char* firstWord;
-	int i, labelIndex;
+	char* secondWord;
+	char zeros[] = "00000000\n";
+	int labelIndex, i;
 	char s[] = " ,\t\r\n";
 	f = fopen(path, "r");
 	int cmdCounter = 0;
 	if(!f)
 	{
-		printf("Can't open File\n");
+		printf("Can't open File %s\n", path);
 		return;
 	}
 	int tempcheck = 0;
-	char* labels[MAX_ROWS];
+
+	labelList* labelsList = createLabelList();
+
+//	char labels[MAX_ROWS][MAX_LABEL_LENGTH];
 	char label[MAX_LABEL_LENGTH];
+
 	while(fgets(buffer, MAX_ROW_LENGTH, f))
 	{
-		if(!strcmp(buffer, ""))
+		printf("line is: %s", buffer);
+		if(!strcmp(buffer, "") || (!strcmp(buffer, "\n")))
 		{
 			continue;
 		}
+
 		tempcheck = isThereLabelInIt(buffer,label);
 		if(tempcheck ==1)
 		{
-			labels[cmdCounter] = label; //is that the right way to insert a string to an array?
+//			labels[cmdCounter] = label; //is that the right way to insert a string to an array?
+//			strcpy(labels[cmdCounter], label);
+			addLastToList(labelsList, createLabelNode(cmdCounter, label));
 		}
 		else if (tempcheck == 2)
 		{
-			labels[cmdCounter] = label;
+//			labels[cmdCounter] = label;
+//			strcpy(labels[cmdCounter], label);
+			addLastToList(labelsList, createLabelNode(cmdCounter, label));
 			cmdCounter++;
 		}
 		else if(tempcheck == 3)
 		{
 			cmdCounter++;
 		}
+
 	}
+
+	printf("Labels list is: \n");
+	printList(labelsList);
+
+	printf("write to output\n");
 	cmdCounter = 0;
 	fseek(f, 0, SEEK_SET);
 	while(fgets(buffer, MAX_ROW_LENGTH, f))
 	{
-		firstWord = strtok(buffer, s);
-		if((!firstWord))
+		printf("############################################\noutput: line is: %s", buffer);
+
+		strcpy(bufferCopy, buffer);
+
+		firstWord = strtok(bufferCopy, s);
+		secondWord = strtok(NULL, s);
+//		strcpy(bufferCopy, buffer);
+		if(!firstWord)
 		{
 			continue;
 		}
-
-		if(isBufferHasLabel(buffer, label))
+		printf("firstWord is: (%s)\n", firstWord);
+		if(firstWord[0] == '#')
 		{
-			for(i = 0; i < MAX_ROWS; i++)
+			continue;
+		}
+		if(firstWord[strlen(firstWord) - 1] == ':')
+		{
+
+			if(secondWord)
 			{
-				if(!(strcmp(label, labels[i])))
-				{
-					labelIndex = i;
-					break;
-				}
+				strcpy(bufferCopy, buffer);
+				printf("bobo, bufferCopy=%s buffer=%s\n", bufferCopy, buffer);
+				deleteFirstWordFromLine(bufferCopy, buffer);
+				printf("gogo, bufferCopy=%s buffer=%s\n", bufferCopy, buffer);
+			}
+			else
+			{
+				printf("yoyo\n");
+				continue;
 			}
 
+		}
+		if (!strcmp(firstWord, ".word"))
+		{
+			printf("continue - this is word!!\n");
+			continue;
+		}
+
+		strcpy(bufferCopy, buffer);
+
+		if(isBufferHasLabel(bufferCopy, label))
+		{
+			printf("this buffer has label %s\n", label);
+			labelIndex = getRowByLabelName(labelsList, label);
+			printf("this buffer has label %s in row %d\n", label, labelIndex);
 			tempcheck = whichOptCode(firstWord);
 			if(tempcheck == 0)
 			{
-				parseCommand(buffer, hexline); //need to add \n at the end; OR is buffer == line ?
+				parseCommand(buffer, hexline);
 				fprintf(output, hexline);
-				cmdCounter++;
+//				cmdCounter++;
 			}
 			if(tempcheck == -1)
 			{
@@ -463,18 +620,36 @@ void readFile(char* path,char* path_out)
 			if(tempcheck == 1)
 			{
 				changeLine(buffer, labelIndex, cmdCounter, true, newLine);
-				parseCommand(newLine, hexline); //need to add \n at the end;
+				parseCommand(newLine, hexline);
 				fprintf(output, hexline);
 			}
 			else if(tempcheck == 2)
 			{
+				printf("JAL/JR buffer is: %s\n", buffer);
+				newLine[0] =  '\0';
 				changeLine(buffer, labelIndex, cmdCounter, false, newLine);
+				printf("JAL/JR newLine is: %s\n", newLine);
 				parseCommand(newLine, hexline); //need to add \n at the end;
 				fprintf(output, hexline);
 			}
 		}
+		else
+		{
+			printf("no label in this line: %s\n", buffer);
+			parseCommand(buffer, hexline);
+			fprintf(output, hexline);
+		}
+		cmdCounter++;
 	}
+	printf("cmdCounter is: %d\n", cmdCounter);
+
+	for(i = cmdCounter; i < MAX_ROWS; i++)
+	{
+		fprintf(output, zeros);
+	}
+
 	//add 0000000 to from and cmdcounter til end of file
 	//WORD command - OR goren
-	//close both files
+	fclose(output);
+	fclose(f);
 }
