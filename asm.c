@@ -33,7 +33,7 @@ void parseCommand(const char* cmd, char* result)
 	result[5] = imm[1];
 	result[6] = imm[2];
 	result[7] = imm[3];
-	result[8] = '\n';
+	result[8] = '\0';
 	printf("finnaly the result is: %s\n", result);
 }
 
@@ -178,12 +178,12 @@ char convertOpcode(char* opcode)
 	return 'G';
 }
 
-void convertDecToHex(int a, char* result)
+void convertDecToHex(int a, char* result, int len)
 {
 	int i;
 	int t;
 	int mask = 15;
-	for(i = 3; i >= 0; i--)
+	for(i = len - 1; i >= 0; i--)
 	{
 		t = mask & a;
 		if (t > 9)
@@ -197,8 +197,40 @@ void convertDecToHex(int a, char* result)
 
 		a >>= 4;
 	}
-	result[4] = '\0';
+	result[len] = '\0';
 
+}
+
+int convertHexRowIndexToDec(const char* hexRowIndex)
+{
+	if(!hexRowIndex)
+	{
+		return -1;
+	}
+	int i;
+	int j;
+	int t = 0;
+	int ans = 0;
+	char nums[] = "0123456789ABCDEF";
+
+	for(i = strlen(hexRowIndex) - 1; i>= 0; i--)
+	{
+		if(hexRowIndex[i] == 0)
+		{
+			break;
+		}
+		for(j = 0; j < strlen(nums); j++)
+		{
+			if (hexRowIndex[i] == nums[j])
+			{
+				t = j;
+				break;
+			}
+		}
+			ans += (int)pow(16, strlen(hexRowIndex) - 1 - i) * t;
+	}
+
+	return ans;
 }
 
 bool isHex(char* num)
@@ -238,7 +270,7 @@ void convertImmediate(char* imm, char* result)
 	else
 	{
 		printf("imm is a dec number\n");
-		convertDecToHex(atoi(imm), result);
+		convertDecToHex(atoi(imm), result, 4);
 	}
 	printf("imm = %s, result = %s\n", imm, result);
 }
@@ -350,7 +382,7 @@ void changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel, char*
 		labelLines = labelIndex;
 	}
 
-	convertDecToHex(labelLines, labelReplace);
+	convertDecToHex(labelLines, labelReplace, 4);
 	strcat(newLine, labelReplace);
 
 }
@@ -473,7 +505,7 @@ void deleteFirstWordFromLine(char* line, char* newLine)
 	t1 = NULL;
 }
 
-void parseWordCommand(char* command)
+void parseWordCommand(char* command, const char** memory)
 {
 	char temp[MAX_ROW_LENGTH];
 	char s[] = ", \t\r\n";
@@ -481,8 +513,18 @@ void parseWordCommand(char* command)
 	char* w = strtok(temp, s);
 	char* address = strtok(NULL, s);
 	char* data = strtok(NULL, s);
-
+	int addr;
+	char dat[8];
 	if(isHex(address))
+	{
+		addr = convertHexRowIndexToDec(address);
+	}
+	else
+	{
+		addr = atoi(address);
+	}
+
+	if(isHex(data))
 	{
 
 	}
@@ -503,9 +545,15 @@ void readFile(char* path,char* path_out)
 	char buffer[MAX_ROW_LENGTH];
 	char bufferCopy[MAX_ROW_LENGTH];
 	char newLine[MAX_ROW_LENGTH];
+	//char memory[MAX_ROWS][MEMORY_WORD_LENGTH + 1];
+	char memory[MAX_ROWS][MEMORY_WORD_LENGTH + 1];
+	int maxRowInMem = -1;
 	char* firstWord;
 	char* secondWord;
-	char zeros[] = "00000000\n";
+	char* thirdWord;
+	char hexLine[MEMORY_WORD_LENGTH + 1];
+	int addr;
+	char zeros[] = "00000000\0";
 	int labelIndex, i;
 	char s[] = " ,\t\r\n";
 	f = fopen(path, "r");
@@ -519,12 +567,12 @@ void readFile(char* path,char* path_out)
 
 	labelList* labelsList = createLabelList();
 
-//	char labels[MAX_ROWS][MAX_LABEL_LENGTH];
 	char label[MAX_LABEL_LENGTH];
 
 	while(fgets(buffer, MAX_ROW_LENGTH, f))
 	{
 		printf("line is: %s", buffer);
+
 		if(!strcmp(buffer, "") || (!strcmp(buffer, "\n")))
 		{
 			continue;
@@ -535,6 +583,7 @@ void readFile(char* path,char* path_out)
 		{
 //			labels[cmdCounter] = label; //is that the right way to insert a string to an array?
 //			strcpy(labels[cmdCounter], label);
+			printf("We Have label HERE!!!!!!\n");
 			addLastToList(labelsList, createLabelNode(cmdCounter, label));
 		}
 		else if (tempcheck == 2)
@@ -542,6 +591,7 @@ void readFile(char* path,char* path_out)
 //			labels[cmdCounter] = label;
 //			strcpy(labels[cmdCounter], label);
 			addLastToList(labelsList, createLabelNode(cmdCounter, label));
+			printf("We Have label HERE!!!!!!\n");
 			cmdCounter++;
 		}
 		else if(tempcheck == 3)
@@ -553,6 +603,7 @@ void readFile(char* path,char* path_out)
 
 	printf("Labels list is: \n");
 	printList(labelsList);
+
 
 	printf("write to output\n");
 	cmdCounter = 0;
@@ -595,6 +646,32 @@ void readFile(char* path,char* path_out)
 		if (!strcmp(firstWord, ".word"))
 		{
 			printf("continue - this is word!!\n");
+			thirdWord = strtok(NULL, s);
+			if(isHex(secondWord))
+			{
+				addr = convertHexRowIndexToDec(secondWord);
+			}
+			else
+			{
+				addr = atoi(secondWord);
+			}
+
+			if(isHex(thirdWord))
+			{
+				thirdWord+=2;
+				strcpy(memory[addr], thirdWord);
+			}
+			else
+			{
+				convertDecToHex(atoi(thirdWord), hexLine, 8);
+				strcpy(memory[addr], hexLine);
+			}
+
+			if(addr > maxRowInMem)
+			{
+				maxRowInMem = addr;
+			}
+
 			continue;
 		}
 
@@ -609,7 +686,8 @@ void readFile(char* path,char* path_out)
 			if(tempcheck == 0)
 			{
 				parseCommand(buffer, hexline);
-				fprintf(output, hexline);
+				//fprintf(output, hexline);
+				strcpy(memory[cmdCounter], hexline);
 //				cmdCounter++;
 			}
 			if(tempcheck == -1)
@@ -621,7 +699,8 @@ void readFile(char* path,char* path_out)
 			{
 				changeLine(buffer, labelIndex, cmdCounter, true, newLine);
 				parseCommand(newLine, hexline);
-				fprintf(output, hexline);
+				//fprintf(output, hexline);
+				strcpy(memory[cmdCounter], hexline);
 			}
 			else if(tempcheck == 2)
 			{
@@ -630,22 +709,40 @@ void readFile(char* path,char* path_out)
 				changeLine(buffer, labelIndex, cmdCounter, false, newLine);
 				printf("JAL/JR newLine is: %s\n", newLine);
 				parseCommand(newLine, hexline); //need to add \n at the end;
-				fprintf(output, hexline);
+				//fprintf(output, hexline);
+				strcpy(memory[cmdCounter], hexline);
 			}
 		}
 		else
 		{
 			printf("no label in this line: %s\n", buffer);
 			parseCommand(buffer, hexline);
-			fprintf(output, hexline);
+			//fprintf(output, hexline);
+			strcpy(memory[cmdCounter], hexline);
+		}
+
+		if(maxRowInMem == cmdCounter)
+		{
+			maxRowInMem++;
 		}
 		cmdCounter++;
+
 	}
+
 	printf("cmdCounter is: %d\n", cmdCounter);
 
-	for(i = cmdCounter; i < MAX_ROWS; i++)
+	for(i = cmdCounter; i <= maxRowInMem; i++)
 	{
-		fprintf(output, zeros);
+		//fprintf(output, zeros);
+		if(memory[i][0] == 0)
+		{
+			strcpy(memory[i], zeros);
+		}
+	}
+
+	for(i = 0; i <= maxRowInMem; i++)
+	{
+		printf("%d: %s\n", i, memory[i]);
 	}
 
 	//add 0000000 to from and cmdcounter til end of file

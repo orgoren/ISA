@@ -21,12 +21,14 @@ labelNode* createLabelNode(int row, char* content)
 
 			node->contnet[i] = content[i];
 		}
+
+
 	}
 	else
 	{
 		strcpy(node->contnet, content);
 	}
-
+	printf("Node Content is (%s)\n", node->contnet);
 
 
 

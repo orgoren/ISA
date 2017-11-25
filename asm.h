@@ -6,10 +6,13 @@
 #include <string.h>
 #include <stdbool.h>
 #include "labelList.h"
+#include <limits.h>
+#include <math.h>
 
 #define MAX_ROW_LENGTH 500
 #define MAX_ROWS 65535
 #define MAX_LABEL_LENGTH 50
+#define MEMORY_WORD_LENGTH 8
 
 void parseCommand(const char* cmd, char* result);
 
@@ -17,7 +20,9 @@ char convertRegister(char* reg);
 
 char convertOpcode(char* opcode);
 
-void convertDecToHex(int a, char* result);
+void convertDecToHex(int a, char* result, int len);
+
+int convertHexRowIndexToDec(const char* hexRowIndex);
 
 bool isHex(char* num);
 
@@ -34,7 +39,7 @@ int isCMD(char* firstWord);
 int whichOptCode(char* Word);
 void deleteFirstWordFromLine(char* line, char* newLine);
 
-void parseWordCommand(char* command);
+void parseWordCommand(char* command, const char** memory);
 
 void readFile(char* path, char* path_out);
 
