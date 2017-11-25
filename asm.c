@@ -317,14 +317,11 @@ int isThereLabelInIt(char* getline,char* label)
 				printf("there is cmd and label in this line\n");
 				return 2;
 			}
-			else if(tempCheckIsCmd == -1)
+//			else if(tempCheckIsCmd == -1)
+			else
 			{
 				printf("there is WORD CMD\n");
 				return 1;
-			}
-			else
-			{
-				return 0; ///////////////////////////////////not true
 			}
 		}
 	}
@@ -545,7 +542,6 @@ void readFile(char* path,char* path_out)
 	char buffer[MAX_ROW_LENGTH];
 	char bufferCopy[MAX_ROW_LENGTH];
 	char newLine[MAX_ROW_LENGTH];
-	//char memory[MAX_ROWS][MEMORY_WORD_LENGTH + 1];
 	char memory[MAX_ROWS][MEMORY_WORD_LENGTH + 1];
 	int maxRowInMem = -1;
 	char* firstWord;
@@ -553,7 +549,7 @@ void readFile(char* path,char* path_out)
 	char* thirdWord;
 	char hexLine[MEMORY_WORD_LENGTH + 1];
 	int addr;
-	char zeros[] = "00000000\0";
+	char zeros[] = "00000000";
 	int labelIndex, i;
 	char s[] = " ,\t\r\n";
 	f = fopen(path, "r");
@@ -604,6 +600,11 @@ void readFile(char* path,char* path_out)
 	printf("Labels list is: \n");
 	printList(labelsList);
 
+	// initialize Memory
+	for(i = 0; i < MAX_ROWS; i++)
+	{
+		memory[i][0] = '\0';
+	}
 
 	printf("write to output\n");
 	cmdCounter = 0;
@@ -731,22 +732,21 @@ void readFile(char* path,char* path_out)
 
 	printf("cmdCounter is: %d\n", cmdCounter);
 
-	for(i = cmdCounter; i <= maxRowInMem; i++)
+	for(i = 0; i < MAX_ROWS; i++)
 	{
-		//fprintf(output, zeros);
 		if(memory[i][0] == 0)
 		{
-			strcpy(memory[i], zeros);
+			fprintf(output, zeros);
 		}
+		else
+		{
+			fprintf(output, memory[i]);
+		}
+
+		fprintf(output, "\n");
 	}
 
-	for(i = 0; i <= maxRowInMem; i++)
-	{
-		printf("%d: %s\n", i, memory[i]);
-	}
 
-	//add 0000000 to from and cmdcounter til end of file
-	//WORD command - OR goren
 	fclose(output);
 	fclose(f);
 }
