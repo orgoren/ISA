@@ -21,5 +21,6 @@
 #define TRACE 4
 #define COUNT 5
 
+void printToRegout(const char* reg, FILE* regout);
 
 #endif /* SIM_H_ */
