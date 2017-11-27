@@ -1,0 +1,25 @@
+INITIALIZE:
+	limm $s0, $zero, $zero, 1023	#mem_addr
+	limm $t0, $zero, $zero, 1		#const
+	limm $t1, $zero, $zero, 10		#const
+	limm $t2, $zero, $zero, 0		#i
+	limm $t3, $zero, $zero, 1		#j
+	limm $s1, $zero, $zero, 0		#reg For memory
+
+MAIN:
+	add $t2, $t2, $t0, $zero
+	bgt $zero, $t2, $t1, HALT
+	SECOND:	
+		add $s1, $s1, $t2, $zero		#advance ans by + i
+		add $s0, $s0, $t0, $zero	#advance memory by one
+		sw $s1, $s0, $zero, $zero		#save ans to memory
+		add $t3, $t3, $t0, $zero		#j++
+		bgt $zero, $t3, $t1, ROUNT_INIT
+		beq $zero, $zero, $zero, SECOND
+
+ROUND_INIT:
+	limm $t3, $zero, $zero, 1
+	beq $zero, $zero, $zero, MAIN
+
+HALT:
+	halt $zero, $zero, $zero, $zero

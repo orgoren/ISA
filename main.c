@@ -29,5 +29,7 @@ int main(int argc, char** argv)
 	//printList(l);
 
 	int i = convertHexToIntTwosCom("FFFFAB123");
-	printf("%d\n", i);
+	char* str;
+	convertDecToHex(12, str, 4);
+	printf("%s\n", str);
 }
