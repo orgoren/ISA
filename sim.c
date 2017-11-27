@@ -89,15 +89,19 @@ void printToRegout(const char* reg, FILE* regout)
 
 void placeInTempReg(char* reg, const char* line)
 {
-
+	int i = 0;
+	for ( ; i<4 ; ++i)
+	{
+		reg[i] = charToInt(line[i]);
+	}
 }
 
 void performCommand(const char* line, int* reg, char** memory)//reg[16] = pc
 {
 	int tempReg[4] = {0};//temReg[0] = rd, tempReg[1] = rs tempReg[2] = rt; tempReg[4] = imm; - decimal
-	char resultString[50];
+	char imm[4];
 	int resultInt = 0;
-	placeInTempReg(line, tempReg);
+	placeInTempReg(tempReg, line);
 	if (line[0] == '0')//add
 	{
 		reg[tempReg[0]] = reg[tempReg[1]] + reg[tempReg[2]];
@@ -169,8 +173,8 @@ void performCommand(const char* line, int* reg, char** memory)//reg[16] = pc
 	}
 	else if (line[0] == 'D')//sw
 	{
-		convertIntToString(reg[tempReg[0]], resultString);
-		memory[reg[tempReg[1]]+tempReg[3]] = resultString; // need to convert decimal to char
+		convertDecToHex(reg[tempReg[0]], imm, 4);
+		strcpy(memory[reg[tempReg[1]]+tempReg[3]], imm); // need to convert decimal to char
 	}
 	else if (line[0] == 'E')//jr
 	{
@@ -230,7 +234,7 @@ int convertHexToIntTwosCom(char* tempString)
 
 int charToInt(char a)
 {
-	if ((a>='0') ||(a<='9'))
+	if ((a>='0') && (a<='9'))
 	{
 		return a -'0';
 	}
