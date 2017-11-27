@@ -1,0 +1,33 @@
+INITIALIZE:
+	limm $t0, $zero, $zero, 1024	# array address
+	limm $t1, $zero, $zero, 1039	# array length left
+	limm $s0, $zero, $zero, 1	# const 1
+	limm $t2, $zero, $zero, 1024	# curr addr
+	limm $t3, $zero, $zero, 0	# temp1
+	limm $s1, $zero, $zero, 0	# temp2
+
+MAIN:
+	beq $zero, $t1, $t0, HALT	# if $t1==1024 then halt
+	beq $zero, $t2, $t1, INIT_LOOP	# if $t2==$t1 then INIT_LOOP	
+	lw $t3, $t2, $zero, $zero	# $t3=A[$t2]			
+	add $t2, $t2, $zero, $zero	# $t2++				
+	lw $s1, $t2, $zero, $zero	# $s1=A[$t2]				
+	bgt $zero, $s1, $t3, SWAP	# if ($t3 < $s1)
+RETURN:
+	beq $zero, $zero, $zero, MAIN	# go to main
+
+
+INIT_LOOP:
+	limm $t2, $zero, $zero, 1024	# $t2=1024
+	sub $t1, $t1, $s0, $zero	# $t1--
+	beq $zero, $zero, $zero, MAIN	# return to MAIN
+	
+SWAP:
+	sw $t3, $t2, $zero, $zero	# a[$t2] = $t3			
+	sub $t2, $t2, $s0, $zero	# $t2--				
+	sw $s1, $t2, $zero, $zero	# a[$t2] = $s1	
+	add $t2, $t2, $s0, $zero	# $t2++		
+	beq $zero, $zero, $zero, RETURN	# Return back
+
+HALT:
+	halt $zero, $zero, $zero, $zero	# halt the program
