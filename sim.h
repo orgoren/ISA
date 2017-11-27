@@ -1,9 +1,3 @@
-/*
- * sim.h
- *
- *  Created on: 25 Nov 2017
- *      Author: netanelf
- */
 #ifndef SIM_H_
 #define SIM_H_
 
@@ -23,6 +17,8 @@
 #define COUNT 5
 
 int sim (int argc, char** argv);
+
+void convertDecToHex(int a, char* result, int len);
 
 void printToRegout(const char* reg, FILE* regout);
 

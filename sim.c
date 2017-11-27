@@ -1,4 +1,3 @@
-
 #include "sim.h"
 
 int sim (int argc, char** argv)
@@ -48,6 +47,28 @@ int sim (int argc, char** argv)
 
 }
 
+void convertDecToHex(int a, char* result, int len)
+{
+	int i;
+	int t;
+	int mask = 15;
+	for(i = len - 1; i >= 0; i--)
+	{
+		t = mask & a;
+		if (t > 9)
+		{
+			result[i] = 'A' + t - 10;
+		}
+		else
+		{
+			result[i] = '0' + (char)(mask & a);
+		}
+
+		a >>= 4;
+	}
+	result[len] = '\0';
+
+}
 
 void printToRegout(const char* reg, FILE* regout)
 {
@@ -66,12 +87,10 @@ void printToRegout(const char* reg, FILE* regout)
 	return;
 }
 
-
 void placeInTempReg(char* reg, const char* line)
 {
 
 }
-
 
 void performCommand(const char* line, int* reg, char** memory)//reg[16] = pc
 {
@@ -163,12 +182,10 @@ void performCommand(const char* line, int* reg, char** memory)//reg[16] = pc
 	}
 }
 
-
 void convertIntToString(int num, char* tempString)
 {
 
 }
-
 
 int convertHexToIntTwosCom(char* tempString)
 {
