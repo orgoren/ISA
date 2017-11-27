@@ -10,32 +10,24 @@
 
 int main(int argc, char** argv)
 {
-//	char b = "A";
-//	char a = "0";
+//	void placeInTempReg(int* reg, const char* line)
 
-//	int k = charToInt(b);
-//	int y = charToInt(a);
-//	int a = 0x12;
-	///printf("digit1 %d\n", k);
-	//printf("digit2 %d\n", y);
-	//int c = atoi(b);
-	//printf("string %d\n", c);
-	//readFile(argv[1], argv[2]);
+	int reg [4] = {0};
 
-	//labelList* l = createLabelList();
+//	char* line = "F20AAB12";
+	char* line = "22";
 
-	//addLastToList(l, createLabelNode(5, "ee"));
+	placeInTempReg(reg, line);
 
-	//printList(l);
+	int i = 0;
+	for(i = 0; i < 4; i++)
+	{
+		printf("%d\t", reg[i]);
+	}
+	printf("\n");
+	char a = line[0];
+	printf("%c", a);
 
-	int k = charToInt('A');
-	int j = charToInt('F');
-	int l = charToInt('0');
-	int m = charToInt('9');
-//	int i = convertHexToIntTwosCom("FFFFAB123");
-	printf("A: %d\n", k);
-	printf("F: %d\n", j);
-	printf("0: %d\n", l);
-	printf("9: %d\n", m);
+
 
 }

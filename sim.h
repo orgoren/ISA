@@ -18,11 +18,11 @@
 
 int sim (int argc, char** argv);
 
-void convertDecToHex(int a, char* result, int len);
+void convertDecToHex2(int a, char* result, int len);
 
 void printToRegout(const char* reg, FILE* regout);
 
-void placeInTempReg(char* reg, const char* line);
+void placeInTempReg(int* reg, const char* line);
 
 void performCommand(const char* line, int* reg, char** memory);
 

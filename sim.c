@@ -10,6 +10,7 @@ int sim (int argc, char** argv)
 	int counter = 0;
 	int i = 0;
 	char memory[MAX_ROWS][MEMORY_WORD_LENGTH];
+	char opt;
 	bool endOfFile = false;
 	int reg[17] = {0};
 
@@ -37,6 +38,7 @@ int sim (int argc, char** argv)
 	{
 		if(strcmp(memory[PC],"F0000000") == 0)//we got halt
 		{
+			counter++;
 			fprintf(files[3], "&d", counter);
 			close(files[3]);
 			printToRegout(reg, files[1]);
@@ -45,19 +47,24 @@ int sim (int argc, char** argv)
 		}
 		else
 		{
-
+			reg[16] = PC;//update pc adress to reg array
+			opt = line[0];
+			updateTrace(reg, files[2], opt);
+			performCommand(memory[PC], reg, memory);
+			counter++;
 		}
 
 	}
 
 }
 
-void updateTrace(const char* reg, FILE* regout, const char opt, int pc)
+void updateTrace(const int* reg, FILE* regout,const char opt)
 {
-
+// pc is in reg[last] as unsigned int
+	return;
 }
 
-void convertDecToHex(int a, char* result, int len)
+void convertDecToHex2(int a, char* result, int len)
 {
 	int i;
 	int t;
@@ -89,26 +96,29 @@ void printToRegout(const char* reg, FILE* regout)
 		{
 			fprintf(regout, "%x\n", reg[i]);
 		}
-//		else
-//		{
-//			fprintf(regout, "%x", reg[i]);
-//		}
+		else
+		{
+			fprintf(regout, "%x", reg[i]);
+		}
 	}
 	return;
 }
 
-void placeInTempReg(char* reg, const char* line)
+void placeInTempReg(int* reg, const char* line)
 {
 	int i = 0;
-	for ( ; i<4 ; ++i)
+	for (i = 0 ; i<3 ; ++i)
 	{
-		reg[i] = charToInt(line[i]);
+		reg[i] = charToInt(line[i+1]);
 	}
+	char* imm = line + 4;
+	reg[3] = convertHexToIntTwosCom(imm);
+
 }
 
 void performCommand(const char* line, int* reg, char** memory)//reg[16] = pc
 {
-	int tempReg[4] = {0};//temReg[0] = rd, tempReg[1] = rs tempReg[2] = rt; tempReg[4] = imm; - decimal
+	int tempReg[4] = {0};//temReg[0] = rd, tempReg[1] = rs tempReg[2] = rt; tempReg[3] = imm; - decimal
 	char imm[4];
 	int resultInt = 0;
 	placeInTempReg(tempReg, line);
@@ -183,7 +193,7 @@ void performCommand(const char* line, int* reg, char** memory)//reg[16] = pc
 	}
 	else if (line[0] == 'D')//sw
 	{
-		convertDecToHex(reg[tempReg[0]], imm, 4);
+		convertDecToHex2(reg[tempReg[0]], imm, 4);
 		strcpy(memory[reg[tempReg[1]]+tempReg[3]], imm); // need to convert decimal to char
 	}
 	else if (line[0] == 'E')//jr
