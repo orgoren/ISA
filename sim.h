@@ -26,8 +26,6 @@ void placeInTempReg(char* reg, const char* line);
 
 void performCommand(const char* line, int* reg, char** memory);
 
-void convertIntToString(int num, char* tempString);
-
 int convertHexToIntTwosCom(char* tempString);
 
 int charToInt(char a);

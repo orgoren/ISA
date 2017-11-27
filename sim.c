@@ -10,7 +10,7 @@ int sim (int argc, char** argv)
 	int counter = 0;
 	int i = 0;
 	char memory[MAX_ROWS][MEMORY_WORD_LENGTH];
-	bool end_of_file = false;
+	bool endOfFile = false;
 	int reg[17] = {0};
 
 	memin = fopen(argv[1], "r");//is memin in argv[1]?
@@ -33,7 +33,7 @@ int sim (int argc, char** argv)
 		}
 	}
 	i = 0;
-	while(!end_of_file)
+	while(!endOfFile)
 	{
 		if(strcmp(memory[PC],"F0000000") == 0)//we got halt
 		{
@@ -43,7 +43,17 @@ int sim (int argc, char** argv)
 			close(files[1]);
 			//copy memory to memout (file[0])
 		}
+		else
+		{
+
+		}
+
 	}
+
+}
+
+void updateTrace(const char* reg, FILE* regout, const char opt, int pc)
+{
 
 }
 
@@ -184,11 +194,6 @@ void performCommand(const char* line, int* reg, char** memory)//reg[16] = pc
 	{
 		return;
 	}
-}
-
-void convertIntToString(int num, char* tempString)
-{
-
 }
 
 int convertHexToIntTwosCom(char* tempString)
