@@ -66,6 +66,7 @@ void printToRegout(const char* reg, FILE* regout)
 	return;
 }
 
+
 void placeInTempReg(char* reg, const char* line)
 {
 
@@ -75,6 +76,8 @@ void placeInTempReg(char* reg, const char* line)
 void performCommand(const char* line, int* reg, char** memory)//reg[16] = pc
 {
 	int tempReg[4] = {0};//temReg[0] = rd, tempReg[1] = rs tempReg[2] = rt; tempReg[4] = imm; - decimal
+	char resultString[50];
+	int resultInt = 0;
 	placeInTempReg(line, tempReg);
 	if (line[0] == '0')//add
 	{
@@ -142,11 +145,13 @@ void performCommand(const char* line, int* reg, char** memory)//reg[16] = pc
 	}
 	else if (line[0] == 'C')//lw
 	{
-		reg[tempReg[0]] = memory[reg[tempReg[1]]+tempReg[3]]; // need to convert decimal to char
+		resultInt = convertHexToIntTwosCom(memory[reg[tempReg[1]]+tempReg[3]]);
+		reg[tempReg[0]] = resultInt; // need to convert decimal to char
 	}
 	else if (line[0] == 'D')//sw
 	{
-		memory[reg[tempReg[1]]+tempReg[3]] = reg[tempReg[0]] ; // need to convert decimal to char
+		convertIntToString(reg[tempReg[0]], resultString);
+		memory[reg[tempReg[1]]+tempReg[3]] = resultString; // need to convert decimal to char
 	}
 	else if (line[0] == 'E')//jr
 	{
@@ -156,4 +161,65 @@ void performCommand(const char* line, int* reg, char** memory)//reg[16] = pc
 	{
 		return;
 	}
+}
+
+
+void convertIntToString(int num, char* tempString)
+{
+
+}
+
+
+int convertHexToIntTwosCom(char* tempString)
+{
+	if(!tempString)
+	{
+		return -1;
+	}
+	int i;
+	int j;
+	int t = 0;
+	int ans = 0;
+	char nums[] = "0123456789ABCDEF";
+
+	for(i = strlen(tempString) - 1; i>= 0; i--)
+	{
+		if(tempString[i] == 0)
+		{
+			break;
+		}
+		for(j = 0; j < strlen(nums); j++)
+		{
+			if (tempString[i] == nums[j])
+			{
+				t = j;
+				break;
+			}
+		}
+			ans += (int)pow(16, strlen(tempString) - 1 - i) * t;
+	}
+
+	//char mask = 'F';
+	//int b = mask & tempString[0];
+	//printf("b=%d\n", b);
+	if(tempString[0] >= '8')
+	{
+		printf("yoyo\n");
+		ans -= (int)pow(2, strlen(tempString) * 4);
+	}
+
+	return ans;
+}
+
+int charToInt(char a)
+{
+	if ((a>='0') ||(a<='9'))
+	{
+		return a -'0';
+	}
+	return a -'A' + 10;
+//	if(a>="A")
+//	{
+//		return a - "A" +10;
+//	}
 }

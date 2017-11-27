@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 
 #define MAX_ROW_LENGTH 500
 #define MAX_ROWS 65535
@@ -21,6 +22,18 @@
 #define TRACE 4
 #define COUNT 5
 
+int sim (int argc, char** argv);
+
 void printToRegout(const char* reg, FILE* regout);
+
+void placeInTempReg(char* reg, const char* line);
+
+void performCommand(const char* line, int* reg, char** memory);
+
+void convertIntToString(int num, char* tempString);
+
+int convertHexToIntTwosCom(char* tempString);
+
+int charToInt(char a);
 
 #endif /* SIM_H_ */

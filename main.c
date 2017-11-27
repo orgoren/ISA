@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "asm.h"
+#include "sim.h"
 #include <regex.h>
 #include <assert.h>
 
@@ -9,8 +10,17 @@
 
 int main(int argc, char** argv)
 {
+//	char b = "A";
+//	char a = "0";
 
-	readFile(argv[1], argv[2]);
+//	int k = charToInt(b);
+//	int y = charToInt(a);
+//	int a = 0x12;
+	///printf("digit1 %d\n", k);
+	//printf("digit2 %d\n", y);
+	//int c = atoi(b);
+	//printf("string %d\n", c);
+	//readFile(argv[1], argv[2]);
 
 	//labelList* l = createLabelList();
 
@@ -18,4 +28,6 @@ int main(int argc, char** argv)
 
 	//printList(l);
 
+	int i = convertHexToIntTwosCom("FFFFAB123");
+	printf("%d\n", i);
 }
