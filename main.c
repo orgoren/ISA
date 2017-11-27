@@ -28,6 +28,13 @@ int main(int argc, char** argv)
 
 	//printList(l);
 
-	int i = convertHexToIntTwosCom("FFFFAB123");
-	printf("%d\n", i);
+	int k = charToInt('A');
+	int j = charToInt('F');
+	int l = charToInt('0');
+	int m = charToInt('9');
+//	int i = convertHexToIntTwosCom("FFFFAB123");
+	printf("A: %d\n", k);
+	printf("F: %d\n", j);
+	printf("0: %d\n", l);
+	printf("9: %d\n", m);
 }
