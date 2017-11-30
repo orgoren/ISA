@@ -58,9 +58,7 @@ int sim (int argc, char** argv)
 		if(memory[PC][0] == 'F')
 		{
 			fprintf(files[COUNT_OUT], "%d\n", counter);
-			//close(files[COUNT_OUT]);
 			printToRegout(reg, files[REG_OUT]);
-			//close(files[REG_OUT]);
 			endOfFile = true;
 
 			for(i = 0; i < MAX_ROWS; i++)
@@ -85,9 +83,6 @@ int sim (int argc, char** argv)
 			else if(memory[PC][0] == 'D')
 			{
 				placeInTempReg(tempReg, memory[PC]);
-				//convertDecToHex2(reg[tempReg[0]], imm, 8);
-				//printf("imm = %s\n", imm);
-				//strcpy(memory[reg[tempReg[1]]+tempReg[3]], imm);
 				convertDecToHex2(reg[tempReg[0]], temp, 8);
 				strcpy(memory[reg[tempReg[1]] + tempReg[3]], temp);
 
@@ -95,14 +90,12 @@ int sim (int argc, char** argv)
 			}
 			else
 			{
-				performCommand(memory[PC], reg);//, memory);
+				performCommand(memory[PC], reg);
 				printf("new pc is: %d\n", reg[16]);
 			}
 
-
 			PC = reg[16];
 		}
-
 	}
 
 	fclose(memin);
@@ -238,6 +231,7 @@ void performCommand(char* line, int* reg)//, char** memory)//reg[16] = pc
 	}
 	else if (line[0] == '7')
 	{
+		printf("beq: reg[tempReg[1]]=%d reg[tempReg[2]]=%d tempReg[3] = %d\n", reg[tempReg[1]], reg[tempReg[2]], tempReg[3]);
 		if(reg[tempReg[1]] == reg[tempReg[2]])
 		{
 			reg[16] = tempReg[3];

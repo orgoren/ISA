@@ -11,10 +11,11 @@
 
 int main(int argc, char** argv)
 {
-	assert(argc == 6);
+	//assert(argc == 6);
 
 	sim(argc, argv);
 
+	//readFile(argv[1], argv[2]);
 
 
 }

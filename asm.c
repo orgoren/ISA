@@ -361,6 +361,7 @@ void changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel, char*
 	char p[] = ", ";
 	char labelReplace[2];
 	int labelLines;
+	newLine[0] = '\0';
 	strcat(newLine, opcodeStr);
 	strcat(newLine, p);
 	strcat(newLine, rdStr);
@@ -370,16 +371,18 @@ void changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel, char*
 	strcat(newLine, rtStr);
 	strcat(newLine, p);
 
-	if(isRel)
-	{
-		labelLines = labelIndex - lineIndex;
-	}
-	else
-	{
+//	if(isRel)
+//	{
+//		labelLines = labelIndex - lineIndex;
+//	}
+//	else
+//	{
 		labelLines = labelIndex;
-	}
+//	}
 
 	convertDecToHex(labelLines, labelReplace, 4);
+	printf("labelReplace = %s\n", labelReplace);
+	strcat(newLine, "0x");
 	strcat(newLine, labelReplace);
 
 }
@@ -699,6 +702,7 @@ void readFile(char* path,char* path_out)
 			if(tempcheck == 1)
 			{
 				changeLine(buffer, labelIndex, cmdCounter, true, newLine);
+				printf("newLine = %s\n", newLine);
 				parseCommand(newLine, hexline);
 				//fprintf(output, hexline);
 				strcpy(memory[cmdCounter], hexline);
