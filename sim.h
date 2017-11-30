@@ -24,7 +24,7 @@ void updateTrace(const int* reg, FILE* traceOut,char* inst);
 
 void convertDecToHex2(int a, char* result, int len);
 
-void printToRegout(const char* reg, FILE* regout);
+void printToRegout(int* reg, FILE* regout);
 
 void placeInTempReg(int* reg, char* line);
 
