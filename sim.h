@@ -11,20 +11,24 @@
 #define MAX_ROWS 65535
 #define MAX_LABEL_LENGTH 50
 #define MEMORY_WORD_LENGTH 8
-#define MEM_OUT 2
-#define REG_OUT 3
-#define TRACE 4
-#define COUNT 5
+#define NUM_OF_REGS 16
+
+#define MEM_OUT 0
+#define REG_OUT 1
+#define TRACE_OUT 2
+#define COUNT_OUT 3
 
 int sim (int argc, char** argv);
+
+void updateTrace(const int* reg, FILE* traceOut,char* inst);
 
 void convertDecToHex2(int a, char* result, int len);
 
 void printToRegout(const char* reg, FILE* regout);
 
-void placeInTempReg(int* reg, const char* line);
+void placeInTempReg(int* reg, char* line);
 
-void performCommand(const char* line, int* reg, char** memory);
+void performCommand(char* line, int* reg);//, char** memory);
 
 int convertHexToIntTwosCom(char* tempString);
 
