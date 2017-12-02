@@ -10,7 +10,7 @@ MAIN:
 	beq $zero, $t1, $t0, HALT	# if $t1==1024 then halt
 	beq $zero, $t2, $t1, INIT_LOOP	# if $t2==$t1 then INIT_LOOP	
 	lw $t3, $t2, $zero, $zero	# $t3=A[$t2]			
-	add $t2, $t2, $zero, $zero	# $t2++				
+	add $t2, $t2, $s0, $zero	# $t2++				
 	lw $s1, $t2, $zero, $zero	# $s1=A[$t2]				
 	bgt $zero, $s1, $t3, SWAP	# if ($t3 < $s1)
 RETURN:
@@ -21,7 +21,7 @@ INIT_LOOP:
 	limm $t2, $zero, $zero, 1024	# $t2=1024
 	sub $t1, $t1, $s0, $zero	# $t1--
 	beq $zero, $zero, $zero, MAIN	# return to MAIN
-	
+
 SWAP:
 	sw $t3, $t2, $zero, $zero	# a[$t2] = $t3			
 	sub $t2, $t2, $s0, $zero	# $t2--				

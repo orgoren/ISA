@@ -7,15 +7,19 @@
 
 //we made several strcpy in small functions, should we free their memory? NO
 
+#define SIM 1
 
 
 int main(int argc, char** argv)
 {
 	//assert(argc == 6);
 
-	sim(argc, argv);
-
-	//readFile(argv[1], argv[2]);
-
-
+	if(SIM)
+	{
+		sim(argc, argv);
+	}
+	else
+	{
+		readFile(argv[6], argv[1]);
+	}
 }

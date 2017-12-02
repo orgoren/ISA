@@ -1,0 +1,157 @@
+# Need to save some registers?
+INITIALIZE:
+	limm $t0, $zero, $zero, 1024			# array address
+	limm $t1, $zero, $zero, 1040			# temp array addresss
+	limm $s0, $zero, $zero, 1			# const 1
+	limm $t2, $zero, $zero, 1024			# left 
+	limm $t3, $zero, $zero, 1039			# right
+	limm $s1, $zero, $zero, 0			# middle
+	limm $sp, $zero, $zero, 2048			# stack pointer
+	limm $a0, $zero, $zero, 0			# temp1 - leftIndex
+	limm $v0, $zero, $zero, 0			# temp2 - tempArrayIndex
+	limm $a1, $zero, $zero, 0			# temp3 - rightIndex
+	limm $at, $zero, $zero, 0			# temp4
+	limm $fp, $zero, $zero, 0			# temp5
+
+MAIN:
+	jal $zero, $zero, $zero, MERGESORT-START	# go to mergeSort
+	beq $zero, $zero, $zero, TEMP-TO-ORIG-LOOP	# go the temp-to-orig-loop
+
+TEMP-TO-ORIG-LOOP:
+	beq $zero, $zero, $zero, HALT			# end
+
+
+
+MERGESORT-START:
+	bne $zero, $t2, $t3, MERGESORT			# if left != right => MERGESORT
+	jr $ra, $zero, $zero, 0				# go back
+
+
+MERGESORT:
+	limm $at, $zero, $zero, 16			# $at = 16
+	sub $sp, $sp, $at, 0				# set stack area for this run
+	sw $t2, $sp, $zero, 0				# sp[0]=left
+	sw $t3, $sp, $zero, 1				# sp[1]=right
+	sw $s1, $sp, $zero, 2				# sp[2] = middle
+	sw $ra, $sp, $zero, 3				# sp[3] = $ra		
+	add $s1, $t2, $t3, 0				# middle = left + right
+	sra $s1, $s1, $s0, 0				# middle /= 2
+	add $t3, $s1, $zero, 0				# $t2=$s1 (right = middle)
+	jal $zero, $zero, $zero, MERGESORT-START	# mergesort left
+	add $t2, $s1, $s0, 0				# $t2=$s1+1 (left = middle+1)
+	lw $t3, $sp, $zero, 1				# $t3 = sp[1] (t3 = right)
+	jal $zero, $zero, $zero, MERGESORT-START	# mergesort right 
+
+	lw $t2, $sp, $zero, 0				# $t2 = left
+	lw $t3, $sp, $zero, 1				# $t3 = right
+	jal $zero, $zero, $zero, MERGE			# go to merge
+
+	lw $t2, $sp, $zero, 0				# restore left
+	lw $t3, $sp, $zero, 1				# restore right
+	add $at, $t2, $zero, 0				# $at = $t2 ($at = left)
+	beq $zero, $zero, $zero, MERGESORT-FOR		# copy the tempArr to regard
+
+MERGESORT-FOR:
+	bgt $zero, $t2, $t3, MERGESORT-FOR-END
+	lw $t1, $t2, $zero, 16
+	sw $t1, $t2, $zero, 0
+	add $t2, $t2, $s0, 0
+	beq $zero, $zero, $zero, MERGESORT-FOR
+
+
+MERGESORT-FOR-END:
+	lw $t2, $sp, $zero, 0				# restore left
+	lw $t3, $sp, $zero, 1				# restore right
+	lw $s1, $sp, $zero, 2				# restore middle
+	lw $ra, $sp, $zero, 3				# restore $ra
+	limm $at $zero, $zero, 16			# $at = 16
+	add $sp, $sp, $at, 0				# restore sp address
+	jr $ra, $zero, $zero, 0				# return
+
+
+
+MERGE:
+	limm $at, $zero, $zero, 16			# $at = 16
+	sub $sp, $sp, $at, 0				# set stack space for this run
+	sw $t2, $sp, $zero, 0				# store left
+	sw $t3, $sp, $zero, 1				# store right
+	sw $s1, $sp, $zero, 2				# store middle
+	sw $ra, $sp, $zero, 3				# store ra
+	add $a0, $t2, $zero, 0				# a0 = left (leftIndex)
+	add $a1, $s1, $s0, 0				# a1 = middle+1 (rightIndex)
+	add $v0, $t2, $zero, 0				# v0 = left (tempArray Index)
+	beq $zero, $zero, $zero, MERGE-LOOP1		# start merging
+
+MERGE-LOOP1:
+	bgt $zero, $a0, $s1, MERGE-LOOP2
+	bgt $zero, $a1, $t3, MERGE-LOOP2
+	lw $at, $a0, $zero, 0				# at=array[leftIndex]
+	lw $fp, $a1, $zero, 0				# fp=array[rightIndex]
+	bgt $zero, $at, $fp, M-L1-IF1			# array[lI] > array[rI] => go to IF1
+	beq $zero, $zero, $zero, M-L1-ELSE1		# else => go to ELSE1
+
+M-L1-IF1:
+	sw $at, $v0, $zero, 16				# tempArr[leftIndex] = array[leftIndex]
+	add $a0, $a0, $s0, 0				# $a0++ (leftIndex++)
+	add $v0, $v0, $s0, 0				# $v0++ (tempArrayIndex++)
+	beq $zero, $zero, $zero, MERGE-LOOP1		# go back to LOOP1		
+
+M-L1-ELSE1:
+	sw $fp, $v0, $zero, 16				# tempArr[leftIndex] = array[rightIndex]
+	add $a1, $a1, $s0, 0				$ $a1++ (rightIndex++)
+	add $v0, $v0, $s0, 0				# $v0++ (tempArrayIndex++)
+	beq $zero, $zero, $zero, MERGE-LOOP1		# go back to LOOP1
+
+
+MERGE-LOOP2: 
+	bgt $zero, $a0, $s1, MERGE-LOOP3		# if leftIndex>middleIndex => go to LOOP3
+	lw $at, $a0, $zero, 0				# at = array[leftIndex]
+	sw $at, $v0, $zero, 16				# tmpArr[tmpIndex] = array[leftIndex]
+	add $a0, $a0, $s0, 0				# $a0++ (leftIndex++)
+	add $v0, $v0, $s0, 0				# $v0++ (tmpIndex++)
+	beq $zero, $zero, $zero, MERGE-LOOP2		# go back to LOOP2
+
+MERGE-LOOP3:
+	bgt $zero, $a1, $t3, MERGE-END			# if rightIndex>right => go to END
+	lw $fp, $a1, $zero, 0				# fp = array[rightIndex]
+	sw $fp, $v0, $zero, 16				# tmpArr[tmpIndex] = array[rightIndex]
+	add $a1, $a1, $s0, 0				# $a1++ (rightIndex++)
+	add $v0, $v0, $s0, 0				# $v0++ (tmpIndex++)
+	beq $zero, $zero, $zero, MERGE-LOOP3		# go back to LOOP3
+
+
+MERGE-END:
+	lw $t2, $sp, $zero 0				# restore left
+	lw $t3, $sp, $zero 1				# restore right
+	lw $s1, $sp, $zero 2				# restore middle
+	lw $ra, $sp, $zero 3				# restore ra
+	limm $at, $zero, $zero, 16			# $at = 16
+	add $sp, $sp, $at, 0				# restore prev sp address
+	jr $ra, $zero, $zero, $zero			# return to end of mergesort
+
+HALT:
+	halt, $zero, $zero, $zero, 0	# Halt
+
+
+.word 1024 10
+.word 1025 5
+.word 1026 8
+.word 1027 20
+.word 1028 18
+.word 1029 40
+.word 1030 1
+.word 1031 90
+.word 1032 55
+.word 1033 43
+.word 1034 100
+.word 1035 30
+.word 1036 31
+.word 1037 15
+.word 1038 180
+.word 1039 7
+
+
+
+
+
+

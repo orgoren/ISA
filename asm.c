@@ -546,7 +546,7 @@ void readFile(char* path,char* path_out)
 	char bufferCopy[MAX_ROW_LENGTH];
 	char newLine[MAX_ROW_LENGTH];
 	char memory[MAX_ROWS][MEMORY_WORD_LENGTH + 1];
-	int maxRowInMem = -1;
+	int maxRowInMem = 0;
 	char* firstWord;
 	char* secondWord;
 	char* thirdWord;
@@ -736,7 +736,7 @@ void readFile(char* path,char* path_out)
 
 	printf("cmdCounter is: %d\n", cmdCounter);
 
-	for(i = 0; i < MAX_ROWS; i++)
+	for(i = 0; i < maxRowInMem; i++)
 	{
 		if(memory[i][0] == 0)
 		{
