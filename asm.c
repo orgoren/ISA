@@ -578,7 +578,10 @@ void readFile(char* path,char* path_out)
 	{
 		printf("line is: %s", buffer);
 
-		if(!strcmp(buffer, "") || (!strcmp(buffer, "\n")))
+		strcpy(bufferCopy, buffer);
+		firstWord = strtok(bufferCopy, s);
+		//if(!strcmp(buffer, "") || (!strcmp(buffer, "\n")))
+		if(!firstWord)
 		{
 			continue;
 		}
