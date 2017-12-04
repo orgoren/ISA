@@ -11,6 +11,12 @@ void parseCommand(const char* cmd, char* result)
 	char* rsStr = strtok(NULL, s);
 	char* rtStr = strtok(NULL, s);
 	char* immStr = strtok(NULL, s);
+	char* err = strtok(NULL, s);
+
+	if(err)
+	{
+		printf("there is comment here\n");
+	}
 
 	char opcode = convertOpcode(opcodeStr);
 
@@ -701,6 +707,7 @@ void readFile(char* path,char* path_out)
 
 			if(tempcheck == 1)
 			{
+				newLine[0] = '\0';
 				changeLine(buffer, labelIndex, cmdCounter, true, newLine);
 				printf("newLine = %s\n", newLine);
 				parseCommand(newLine, hexline);
