@@ -511,6 +511,7 @@ void deleteFirstWordFromLine(char* line, char* newLine)
 	t1 = NULL;
 }
 
+//delete this function
 void parseWordCommand(char* command, const char** memory)
 {
 	char temp[MAX_ROW_LENGTH];
