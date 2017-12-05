@@ -37,9 +37,8 @@ bool isBufferHasLabel(char* line, char* label);
 int isCMD(char* firstWord);
 
 int whichOptCode(char* Word);
-void deleteFirstWordFromLine(char* line, char* newLine);
 
-void parseWordCommand(char* command, const char** memory);
+void deleteFirstWordFromLine(char* line, char* newLine);
 
 void readFile(char* path, char* path_out);
 

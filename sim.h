@@ -18,6 +18,28 @@
 #define TRACE_OUT 2
 #define COUNT_OUT 3
 
+#define RD 0
+#define RS 1
+#define RT 2
+#define IMM 3
+
+#define ADD '0'
+#define SUB '1'
+#define AND '2'
+#define OR '3'
+#define SLL '4'
+#define SRA '5'
+#define LIMM '6'
+#define BEQ '7'
+#define BGT '8'
+#define BLE '9'
+#define BNE 'A'
+#define JAL 'B'
+#define LW 'C'
+#define SW 'D'
+#define JR 'E'
+#define HALT 'F'
+
 int sim (int argc, char** argv);
 
 void updateTrace(const int* reg, FILE* traceOut,char* inst);
@@ -28,7 +50,7 @@ void printToRegout(int* reg, FILE* regout);
 
 void placeInTempReg(int* reg, char* line);
 
-void performCommand(char* line, int* reg);//, char** memory);
+void performCommand(char* line, int* reg);
 
 int convertHexToIntTwosCom(char* tempString);
 

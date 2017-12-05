@@ -204,7 +204,6 @@ void convertDecToHex(int a, char* result, int len)
 		a >>= 4;
 	}
 	result[len] = '\0';
-
 }
 
 int convertHexRowIndexToDec(const char* hexRowIndex)
@@ -292,7 +291,7 @@ int isThereLabelInIt(char* getline,char* label)
 	char s[] = " ,\t\r\n";
 	strcpy(line, getline);
 	char* firstWord = strtok(line, s);
-	char* secondWord;
+	char* secondWord = strtok(NULL, s);
 	int tempCheckIsCmd = 0;
 	int lenword = strlen(firstWord);
 	if( firstWord[0] == '#')
@@ -304,7 +303,7 @@ int isThereLabelInIt(char* getline,char* label)
 	{
 		strcpy(label, firstWord);
 		label[lenword] = '\0';
-		secondWord = strtok(line, s);
+		//secondWord = strtok(line, s);
 		if(!secondWord)
 		{
 			printf("there is no legal optcode in this line, step forward\n");
@@ -318,12 +317,12 @@ int isThereLabelInIt(char* getline,char* label)
 		else
 		{
 			tempCheckIsCmd = isCMD(secondWord);
+			printf("tempCheckIsCMD:%d\n", tempCheckIsCmd);
 			if(tempCheckIsCmd == 1)
 			{
 				printf("there is cmd and label in this line\n");
 				return 2;
 			}
-//			else if(tempCheckIsCmd == -1)
 			else
 			{
 				printf("there is WORD CMD\n");
@@ -333,7 +332,6 @@ int isThereLabelInIt(char* getline,char* label)
 	}
 	else
 	{
-
 		if (isCMD(firstWord) == 1)
 		{
 			printf("there is only command but no label\n");
@@ -344,17 +342,6 @@ int isThereLabelInIt(char* getline,char* label)
 			return 0;
 		}
 	}
-	 // check if the there is a legal command in this line (before the label)
-//	int optNumber = isCMD(firstWord);
-//	if(optNumber != -1)
-//	{
-//		if (optNumber == 1)
-//		{
-//			printf("there is a branch cmd - need to remember relative jump");
-//			getImm(firstWord, imm); //jump to immm and check if it a label
-//
-//		}
-//	}
 }
 
 void changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel, char* newLine)
@@ -377,15 +364,7 @@ void changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel, char*
 	strcat(newLine, rtStr);
 	strcat(newLine, p);
 
-//	if(isRel)
-//	{
-//		labelLines = labelIndex - lineIndex;
-//	}
-//	else
-//	{
-		labelLines = labelIndex;
-//	}
-
+	labelLines = labelIndex;
 	convertDecToHex(labelLines, labelReplace, 4);
 	printf("labelReplace = %s\n", labelReplace);
 	strcat(newLine, "0x");
@@ -403,7 +382,10 @@ bool isBufferHasLabel(char* line, char* label)
 	char* r3 = strtok(NULL, s);
 	char* im = strtok(NULL, s);
 
-
+	if(!oc || !r1 || !r2 || !r3 || !im)
+	{
+		return false;
+	}
 
 	if(oc[1] == '#')
 	{
@@ -446,12 +428,12 @@ int isCMD(char* firstWord)
 {
 	if((strlen(firstWord) > 4) || (strlen(firstWord) < 2))
 	{
-		printf("the word we get is not a cmd\n");
+		printf("the word we get: %s is not a cmd\n", firstWord);
 		return -1;
 	}
 	char cmd[5];
 	strcpy(cmd, firstWord);
-	//should we check the strcpy success?
+
 	if(strcmp(cmd, ".word") == 0)
 	{
 		return -1;
@@ -476,7 +458,7 @@ int whichOptCode(char* Word)
 	{
 		return 1;
 	}
-	if((strcmp(Word, "jal") == 0)||(strcmp(Word, "jr") == 0)) //what about ld and sw?
+	if((strcmp(Word, "jal") == 0)||(strcmp(Word, "jr") == 0))
 	{
 		return 2;
 	}
@@ -509,33 +491,6 @@ void deleteFirstWordFromLine(char* line, char* newLine)
 	strcat(newLine, t6);
 
 	t1 = NULL;
-}
-
-//delete this function
-void parseWordCommand(char* command, const char** memory)
-{
-	char temp[MAX_ROW_LENGTH];
-	char s[] = ", \t\r\n";
-	strcpy(temp, command);
-	char* w = strtok(temp, s);
-	char* address = strtok(NULL, s);
-	char* data = strtok(NULL, s);
-	int addr;
-	char dat[8];
-	if(isHex(address))
-	{
-		addr = convertHexRowIndexToDec(address);
-	}
-	else
-	{
-		addr = atoi(address);
-	}
-
-	if(isHex(data))
-	{
-
-	}
-
 }
 
 void readFile(char* path,char* path_out)
@@ -751,11 +706,11 @@ void readFile(char* path,char* path_out)
 	{
 		if(memory[i][0] == 0)
 		{
-			fprintf(output, zeros);
+			fprintf(output, "%s", zeros);
 		}
 		else
 		{
-			fprintf(output, memory[i]);
+			fprintf(output, "%s", memory[i]);
 		}
 
 		fprintf(output, "\n");

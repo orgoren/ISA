@@ -54,7 +54,6 @@ int sim (int argc, char** argv)
 		counter++;
 		updateTrace(reg, files[TRACE_OUT], memory[PC]);
 		printf("PC = %d cmm = %s\n", PC, memory[PC]);
-		//if(strcmp(memory[PC],"F0000000") == 0)//we got halt
 		if(memory[PC][0] == 'F')
 		{
 			fprintf(files[COUNT_OUT], "%d\n", counter);
@@ -63,28 +62,27 @@ int sim (int argc, char** argv)
 
 			for(i = 0; i < MAX_ROWS; i++)
 			{
-				fprintf(files[MEM_OUT], memory[i]);
-				fprintf(files[MEM_OUT], "\n");
+				fprintf(files[MEM_OUT], "%s\n", memory[i]);
 			}
 		}
 		else
 		{
 
 
-			if(memory[PC][0] == 'C')
+			if(memory[PC][0] == LW)
 			{
 				placeInTempReg(tempReg, memory[PC]);
-				printf("reg[tempReg[1]]=%d\n", reg[tempReg[1]]);
-				resultInt = convertHexToIntTwosCom(memory[    reg[tempReg[1]] +      tempReg[3]    ]);
+				printf("reg[tempReg[1]]=%d\n", reg[tempReg[RS]]);
+				resultInt = convertHexToIntTwosCom(memory[reg[tempReg[RS]] + tempReg[IMM]]);
 				printf("fsfds %d\n", resultInt);
 				reg[tempReg[0]] = resultInt;
 				reg[16]++;
 			}
-			else if(memory[PC][0] == 'D')
+			else if(memory[PC][0] == SW)
 			{
 				placeInTempReg(tempReg, memory[PC]);
-				convertDecToHex2(reg[tempReg[0]], temp, 8);
-				strcpy(memory[reg[tempReg[1]] + tempReg[3]], temp);
+				convertDecToHex2(reg[tempReg[RD]], temp, 8);
+				strcpy(memory[reg[tempReg[RS]] + tempReg[IMM]], temp);
 
 				reg[16]++;
 			}
@@ -190,108 +188,111 @@ void placeInTempReg(int* reg, char* line)
 
 }
 
-void performCommand(char* line, int* reg)//, char** memory)//reg[16] = pc
+void performCommand(char* line, int* reg)
 {
 	int tempReg[4] = {0};//temReg[0] = rd, tempReg[1] = rs tempReg[2] = rt; tempReg[3] = imm; - decimal
-	//char imm[4];
-	//int resultInt = 0;
+
 	bool toAdvancePC = true;
-	//printf("pc: line = %s\n", memory[5]);
 	placeInTempReg(tempReg, line);
 	printf("placed\n");
-	if (line[0] == '0')//add
+	if (line[0] == ADD)//add
 	{
-		reg[tempReg[0]] = reg[tempReg[1]] + reg[tempReg[2]];
+		if(tempReg[RD])
+		{
+			reg[tempReg[RD]] = reg[tempReg[RS]] + reg[tempReg[RT]];
+		}
 	}
-	else if (line[0] == '1')
+	else if (line[0] == SUB)
 	{
-		reg[tempReg[0]] = reg[tempReg[1]] - reg[tempReg[2]];
+		if(tempReg[RD])
+		{
+			reg[tempReg[RD]] = reg[tempReg[RS]] - reg[tempReg[RT]];
+		}
 	}
-	else if (line[0] == '2')
+	else if (line[0] == AND)
 	{
-		reg[tempReg[0]] = reg[tempReg[1]] & reg[tempReg[2]];
+		if(tempReg[RD])
+		{
+			reg[tempReg[RD]] = reg[tempReg[RS]] & reg[tempReg[RT]];
+		}
 	}
-	else if (line[0] == '3')
+	else if (line[0] == OR)
 	{
-		reg[tempReg[0]] = reg[tempReg[1]] | reg[tempReg[2]];
-	}
-	else if (line[0] == '4')
-	{
-		reg[tempReg[0]] = reg[tempReg[1]] << reg[tempReg[2]];
-	}
-	else if (line[0] == '5')
-	{
-		reg[tempReg[0]] = reg[tempReg[1]] >> reg[tempReg[2]];
-	}
-	else if (line[0] == '6')
-	{
+		if(tempReg[RD])
+		{
+			reg[tempReg[RD]] = reg[tempReg[RS]] | reg[tempReg[RT]];
 
-		//reg[tempReg[0]] = reg[tempReg[3]];
-		reg[tempReg[0]] = tempReg[3];
+		}
 	}
-	else if (line[0] == '7')
+	else if (line[0] == SLL)
+	{
+		if(tempReg[RD])
+		{
+			reg[tempReg[RD]] = reg[tempReg[RS]] << reg[tempReg[RT]];
+		}
+	}
+	else if (line[0] == SRA)
+	{
+		if(tempReg[RD])
+		{
+			reg[tempReg[RD]] = reg[tempReg[RS]] >> reg[tempReg[RT]];
+
+		}
+	}
+	else if (line[0] == LIMM)
+	{
+		if(tempReg[RD])
+		{
+			reg[tempReg[RD]] = tempReg[IMM];
+		}
+	}
+	else if (line[0] == BEQ)
 	{
 		printf("beq: reg[tempReg[1]]=%d reg[tempReg[2]]=%d tempReg[3] = %d\n", reg[tempReg[1]], reg[tempReg[2]], tempReg[3]);
-		if(reg[tempReg[1]] == reg[tempReg[2]])
+		if(reg[tempReg[RS]] == reg[tempReg[RT]])
 		{
-			reg[16] = tempReg[3];
+			reg[16] = tempReg[IMM];
 			toAdvancePC = false;
 		}
 	}
-	else if (line[0] == '8')
+	else if (line[0] == BGT)
 	{
 		printf("bgt: reg[tempReg[1]]=%d reg[tempReg[2]]=%d tempReg[3] = %d\n", reg[tempReg[1]], reg[tempReg[2]], tempReg[3]);
-		if(reg[tempReg[1]] > reg[tempReg[2]])
+		if(reg[tempReg[RS]] > reg[tempReg[RT]])
 		{
-			reg[16] = tempReg[3];
+			reg[16] = tempReg[IMM];
 			toAdvancePC = false;
 		}
 	}
-	else if (line[0] == '9')
+	else if (line[0] == BLE)
 	{
-		if(reg[tempReg[1]] <= reg[tempReg[2]])
+		if(reg[tempReg[RS]] <= reg[tempReg[RT]])
 		{
-			reg[16] = tempReg[3];
+			reg[16] = tempReg[IMM];
 			toAdvancePC = false;
 		}
 	}
-	else if (line[0] == 'A')
+	else if (line[0] == BNE)
 	{
-		if(reg[tempReg[1]] != reg[tempReg[2]])
+		if(reg[tempReg[RS]] != reg[tempReg[RT]])
 		{
-			reg[16] = tempReg[3];
+			reg[16] = tempReg[IMM];
 			toAdvancePC = false;
 		}
 	}
-	else if (line[0] == 'B')
+	else if (line[0] == JAL)
 	{
-//		if(reg[tempReg[1] > reg[tempReg[2]]])
-//		{
-			reg[15] = reg[16]+1;
-			printf("jal imm=%d\n", tempReg[3]);
-			reg[16] = tempReg[3];
-			toAdvancePC = false;
-//		}
-	}
-	/*
-	else if (line[0] == 'C')//lw
-	{
-		resultInt = convertHexToIntTwosCom(memory[    reg[tempReg[1]] +      tempReg[3]    ]);
-		printf("fsfds\n");
-		reg[tempReg[0]] = resultInt; // need to convert decimal to char
-	}
-	else if (line[0] == 'D')//sw
-	{
-		convertDecToHex2(reg[tempReg[0]], imm, 4);
-		strcpy(memory[reg[tempReg[1]]+tempReg[3]], imm); // need to convert decimal to char
-	}
-	*/
-	else if (line[0] == 'E')//jr
-	{
-		reg[16] = reg[tempReg[0]];
+		reg[15] = reg[16]+1;
+		printf("jal imm=%d\n", tempReg[IMM]);
+		reg[16] = tempReg[IMM];
 		toAdvancePC = false;
 	}
-	else if (line[0] == 'F')//halt
+	else if (line[0] == JR)
+	{
+		reg[16] = reg[tempReg[RD]];
+		toAdvancePC = false;
+	}
+	else if (line[0] == HALT)
 	{
 		return;
 	}
@@ -334,12 +335,9 @@ int convertHexToIntTwosCom(char* tempString)
 				break;
 			}
 		}
-			ans += (int)pow(16, strlen(tempString) - 1 - i) * t;
+		ans += (int)pow(16, strlen(tempString) - 1 - i) * t;
 	}
 
-	//char mask = 'F';
-	//int b = mask & tempString[0];
-	//printf("b=%d\n", b);
 	if(tempString[0] >= '8')
 	{
 		printf("yoyo\n");
@@ -356,9 +354,5 @@ int charToInt(char a)
 		return a -'0';
 	}
 	return a -'A' + 10;
-//	if(a>="A")
-//	{
-//		return a - "A" +10;
-//	}
 }
 
