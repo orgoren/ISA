@@ -232,9 +232,8 @@ int convertHexRowIndexToDec(const char* hexRowIndex)
 				break;
 			}
 		}
-			ans += (int)pow(16, strlen(hexRowIndex) - 1 - i) * t;
+		ans += (int)pow(16, strlen(hexRowIndex) - 1 - i) * t;
 	}
-
 	return ans;
 }
 
@@ -344,7 +343,7 @@ int isThereLabelInIt(char* getline,char* label)
 	}
 }
 
-void changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel, char* newLine)
+void changeLine(char* currLine, int labelIndex, char* newLine)
 {
 	char s[] = " ,\t\r\n";
 	char* opcodeStr = strtok(currLine, s);
@@ -352,7 +351,7 @@ void changeLine(char* currLine, int labelIndex, int lineIndex, bool isRel, char*
 	char* rsStr = strtok(NULL, s);
 	char* rtStr = strtok(NULL, s);
 	char p[] = ", ";
-	char labelReplace[2];
+	char labelReplace[4];//// change from 2 to 4!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	int labelLines;
 	newLine[0] = '\0';
 	strcat(newLine, opcodeStr);
@@ -448,19 +447,14 @@ int whichOptCode(char* Word)
 {
 	//return -1 if there is cmd "WORD"
 	// return 0 if there is any other cmd
-	//return 1 if there is relative jump
-	//return 2 if there is absolute jump
+	//return 1 if there is a jump
 	if((Word[0] == '#') || (strcmp(Word, "WORD") == 0))
 	{
 		return -1;
 	}
-	if((strcmp(Word, "beq") == 0)||(strcmp(Word, "bgt") == 0)||(strcmp(Word, "ble") == 0)||(strcmp(Word, "bne") == 0))
+	if((strcmp(Word, "beq") == 0)||(strcmp(Word, "bgt") == 0)||(strcmp(Word, "ble") == 0)||(strcmp(Word, "bne") == 0)||(strcmp(Word, "jal") == 0)||(strcmp(Word, "jr") == 0))
 	{
 		return 1;
-	}
-	if((strcmp(Word, "jal") == 0)||(strcmp(Word, "jr") == 0))
-	{
-		return 2;
 	}
 	return 0;
 }
@@ -666,20 +660,11 @@ void readFile(char* path,char* path_out)
 
 			if(tempcheck == 1)
 			{
+				printf("JAL/JR buffer is: %s\n", buffer);
 				newLine[0] = '\0';
-				changeLine(buffer, labelIndex, cmdCounter, true, newLine);
+				changeLine(buffer, labelIndex, newLine);
 				printf("newLine = %s\n", newLine);
 				parseCommand(newLine, hexline);
-				//fprintf(output, hexline);
-				strcpy(memory[cmdCounter], hexline);
-			}
-			else if(tempcheck == 2)
-			{
-				printf("JAL/JR buffer is: %s\n", buffer);
-				newLine[0] =  '\0';
-				changeLine(buffer, labelIndex, cmdCounter, false, newLine);
-				printf("JAL/JR newLine is: %s\n", newLine);
-				parseCommand(newLine, hexline); //need to add \n at the end;
 				//fprintf(output, hexline);
 				strcpy(memory[cmdCounter], hexline);
 			}
