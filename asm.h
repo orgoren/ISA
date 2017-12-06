@@ -54,7 +54,15 @@ bool isHex(char* num);
  */
 void convertImmediate(char* imm, char* result);
 
-
+/*the function check gets two strings 'getLine' and 'label'
+ * It checks if there is a label in 'getLine'.
+ * returns - 0 if there is no label.
+ * returns - 1 if there is only label in this line.
+ * returns - 2 if there is a label and a cmd in this line
+ * returns - 3 if there is only a command in this line.
+ * It only checks if the label is in the first word (label:...)
+ * if there is a label, it update 'label' to be the same as the label in 'getLine'.
+ */
 int isThereLabelInIt(char* getline,char* label);
 
 /* this function get currLine - a string with line in the memory with label in it
