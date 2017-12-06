@@ -3,34 +3,34 @@
 void parseCommand(const char* cmd, char* result)
 {
 	char line[500];
+	char imm[5];
+	char label[MAX_LABEL_LENGTH];
 	char s[] = " ,\t\r\n";
+
+	// Extracting the words without damaging the input
 	strcpy(line, cmd);
-	printf("parseCommand: line is: %s\n", line);
 	char* opcodeStr = strtok(line, s);
 	char* rdStr = strtok(NULL, s);
 	char* rsStr = strtok(NULL, s);
 	char* rtStr = strtok(NULL, s);
 	char* immStr = strtok(NULL, s);
-	char* err = strtok(NULL, s);
 
-	if(err)
-	{
-		printf("there is comment here\n");
-	}
-
+	// Converts the opcode and the registers
 	char opcode = convertOpcode(opcodeStr);
-
 	char rd = convertRegister(rdStr);
 	char rt = convertRegister(rtStr);
 	char rs = convertRegister(rsStr);
-	char imm[5];
-	char label[MAX_LABEL_LENGTH];
+
+
+	//If the line doesn't contains a label so we can parse the immStr and save it to imm
+	// The line shouldn't contain a label it it's gotten here - but on any case.
 	strcpy(line, cmd);
 	if (!isBufferHasLabel(line, label))
 	{
-		printf("convert\n");
 		convertImmediate(immStr, imm);
 	}
+
+	// Combining all the commands together and save it to result.
 	result[0] = opcode;
 	result[1] = rd;
 	result[2] = rs;
@@ -40,12 +40,10 @@ void parseCommand(const char* cmd, char* result)
 	result[6] = imm[2];
 	result[7] = imm[3];
 	result[8] = '\0';
-	printf("finnaly the result is: %s\n", result);
 }
 
 char convertRegister(char* reg)
 {
-	printf("reg=%s\n", reg);
 	if(!strcmp(reg, "$zero"))
 	{
 		return '0';
@@ -111,12 +109,12 @@ char convertRegister(char* reg)
 		return 'F';
 	}
 
+	// On Error - no reg can have this value
 	return (char)16;
 }
 
 char convertOpcode(char* opcode)
 {
-	printf("opcode is: %s\n", opcode);
 	if(!strcmp(opcode, "add"))
 	{
 		return '0';
@@ -127,60 +125,62 @@ char convertOpcode(char* opcode)
 	}
 	else if(!strcmp(opcode, "and"))
 	{
-			return '2';
+		return '2';
 	}
 	else if(!strcmp(opcode, "or"))
 	{
-			return '3';
+		return '3';
 	}
 	else if(!strcmp(opcode, "sll"))
 	{
-			return '4';
+		return '4';
 	}
 	else if(!strcmp(opcode, "sra"))
 	{
-			return '5';
+		return '5';
 	}
 	else if(!strcmp(opcode, "limm"))
 	{
-			return '6';
+		return '6';
 	}
 	else if(!strcmp(opcode, "beq"))
 	{
-			return '7';
+		return '7';
 	}
 	else if(!strcmp(opcode, "bgt"))
 	{
-			return '8';
+		return '8';
 	}
 	else if(!strcmp(opcode, "ble"))
 	{
-			return '9';
+		return '9';
 	}
 	else if(!strcmp(opcode, "bne"))
 	{
-			return 'A';
+		return 'A';
 	}
 	else if(!strcmp(opcode, "jal"))
 	{
-			return 'B';
+		return 'B';
 	}
 	else if(!strcmp(opcode, "lw"))
 	{
-			return 'C';
+		return 'C';
 	}
 	else if(!strcmp(opcode, "sw"))
 	{
-			return 'D';
+		return 'D';
 	}
 	else if(!strcmp(opcode, "jr"))
 	{
-			return 'E';
+		return 'E';
 	}
 	else if(!strcmp(opcode, "halt"))
 	{
-			return 'F';
+		return 'F';
 	}
+
+	// On Error - No opcode has this value
 	return 'G';
 }
 
@@ -191,7 +191,7 @@ void convertDecToHex(int a, char* result, int len)
 	int mask = 15;
 	for(i = len - 1; i >= 0; i--)
 	{
-		t = mask & a;
+		t = mask & a;	// Now t contains the 4 lsb bits of a
 		if (t > 9)
 		{
 			result[i] = 'A' + t - 10;
@@ -201,13 +201,14 @@ void convertDecToHex(int a, char* result, int len)
 			result[i] = '0' + (char)(mask & a);
 		}
 
-		a >>= 4;
+		a >>= 4;		// continue to next 4 bits
 	}
 	result[len] = '\0';
 }
 
 int convertHexRowIndexToDec(const char* hexRowIndex)
 {
+	// The row number has to be positive so -1 can be achieved
 	if(!hexRowIndex)
 	{
 		return -1;
@@ -224,6 +225,8 @@ int convertHexRowIndexToDec(const char* hexRowIndex)
 		{
 			break;
 		}
+
+		// t = (int)hexRowIndex[i]
 		for(j = 0; j < strlen(nums); j++)
 		{
 			if (hexRowIndex[i] == nums[j])
@@ -232,6 +235,8 @@ int convertHexRowIndexToDec(const char* hexRowIndex)
 				break;
 			}
 		}
+
+		// Add it correctly
 		ans += (int)pow(16, strlen(hexRowIndex) - 1 - i) * t;
 	}
 	return ans;
@@ -248,6 +253,7 @@ bool isHex(char* num)
 		return false;
 	}
 
+	// Only if it starts with 0x it's a hex
 	if(num[0] == '0' && num[1] == 'x')
 	{
 		return true;
@@ -258,25 +264,20 @@ bool isHex(char* num)
 
 void convertImmediate(char* imm, char* result)
 {
-
-	//if((imm[0] == '0') &&(imm[1] == 'x'))
+	// If it's a hex so we just save the imm letters (only 4 in imm)
 	if(isHex(imm))
 	{
-		printf("yoyo\n");
-		//result = imm + 2;
 		result[0] = imm[2];
 		result[1] = imm[3];
 		result[2] = imm[4];
 		result[3] = imm[5];
 		result[4] = '\0';
-
 	}
+	// If it's a decimal number so we need to make it a hex and save it to result. (len is 4)
 	else
 	{
-		printf("imm is a dec number\n");
 		convertDecToHex(atoi(imm), result, 4);
 	}
-	printf("imm = %s, result = %s\n", imm, result);
 }
 
 int isThereLabelInIt(char* getline,char* label)
@@ -293,47 +294,47 @@ int isThereLabelInIt(char* getline,char* label)
 	char* secondWord = strtok(NULL, s);
 	int tempCheckIsCmd = 0;
 	int lenword = strlen(firstWord);
+
+	// No label if the line is a comment
 	if( firstWord[0] == '#')
 	{
-		printf("there is no label in the first word here\n");
 		return 0;
 	}
-	if(firstWord[lenword-1] == ':') //check if the first word in line is a label
+	// If the line defines a new label (LBL:)
+	if(firstWord[lenword-1] == ':')
 	{
 		strcpy(label, firstWord);
 		label[lenword] = '\0';
-		//secondWord = strtok(line, s);
+
+		// if the second word is a comment or NULL so there's no cmd in the line
 		if(!secondWord)
 		{
-			printf("there is no legal optcode in this line, step forward\n");
 			return 1;
 		}
 		else if (secondWord[0] =='#')
 		{
-			printf("there is no legal optcode in this line, step forward\n");
 			return 1;
 		}
+		// if it has cmd then check whether it's a WORD or regular and returns respectively.
 		else
 		{
 			tempCheckIsCmd = isCMD(secondWord);
-			printf("tempCheckIsCMD:%d\n", tempCheckIsCmd);
 			if(tempCheckIsCmd == 1)
 			{
-				printf("there is cmd and label in this line\n");
 				return 2;
 			}
 			else
 			{
-				printf("there is WORD CMD\n");
 				return 1;
 			}
 		}
 	}
+
+	// No label so we need to check if it contains a command or not without a label and return respectively.
 	else
 	{
 		if (isCMD(firstWord) == 1)
 		{
-			printf("there is only command but no label\n");
 			return 3;
 		}
 		else
@@ -345,14 +346,17 @@ int isThereLabelInIt(char* getline,char* label)
 
 void changeLine(char* currLine, int labelIndex, char* newLine)
 {
+	// Extract all the words in the line
 	char s[] = " ,\t\r\n";
 	char* opcodeStr = strtok(currLine, s);
 	char* rdStr = strtok(NULL, s);
 	char* rsStr = strtok(NULL, s);
 	char* rtStr = strtok(NULL, s);
 	char p[] = ", ";
-	char labelReplace[4];//// change from 2 to 4!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	char labelReplace[4];
 	int labelLines;
+
+	// Saves all the first words to newLine - without the imm
 	newLine[0] = '\0';
 	strcat(newLine, opcodeStr);
 	strcat(newLine, p);
@@ -363,42 +367,43 @@ void changeLine(char* currLine, int labelIndex, char* newLine)
 	strcat(newLine, rtStr);
 	strcat(newLine, p);
 
+	// Converts the row of the label to 4 letters in hex, and then save it to 'newLine'
 	labelLines = labelIndex;
 	convertDecToHex(labelLines, labelReplace, 4);
-	printf("labelReplace = %s\n", labelReplace);
 	strcat(newLine, "0x");
 	strcat(newLine, labelReplace);
-
 }
 
-bool isBufferHasLabel(char* line, char* label)
+bool isBufferHasLabel(char* buffer, char* label)
 {
-	printf("isBufferHashLabel: line is %s\n", line);
+	// Extract all the words from the line
 	char s[] = " ,\t\r\n";
-	char* oc = strtok(line, s);
+	char* oc = strtok(buffer, s);
 	char* r1 = strtok(NULL, s);
 	char* r2 = strtok(NULL, s);
 	char* r3 = strtok(NULL, s);
 	char* im = strtok(NULL, s);
 
+	// Check for errors in the line
 	if(!oc || !r1 || !r2 || !r3 || !im)
 	{
 		return false;
 	}
 
+	// If the line is a comment so no need to check anymore
 	if(oc[1] == '#')
 	{
-		printf("isBufferhasLabel: the first word has #\n");
 		return false;
 	}
 
+	// If ther'es no im so no label can be here.
 	if(!im)
 	{
 		return false;
 	}
 
-	printf("imm length: %d and is: %s\n", strlen(im), im);
-
+	// if the length of imm is 1 we need to check if it's a number. If it's so it's not a label
+	// else it is and we need to save it to the 'label' argument.
 	if(strlen(im) == 1)
 	{
 		if (im[0] >= '0' && im[0] <= '9')
@@ -413,6 +418,8 @@ bool isBufferHasLabel(char* line, char* label)
 		}
 	}
 
+	// If the first letter is not 0-9 so we know it's not a hex or a dec value
+	// so it has to be a label and we save it to label argument.
 	if((im[0] >= 'A' && im[0] <= 'Z') || (im[0] >= 'a' && im[0] <= 'z'))
 	{
 		strcpy(label, im);
@@ -425,14 +432,23 @@ bool isBufferHasLabel(char* line, char* label)
 
 int isCMD(char* firstWord)
 {
-	if((strlen(firstWord) > 4) || (strlen(firstWord) < 2))
+	if(!firstWord)
 	{
-		printf("the word we get: %s is not a cmd\n", firstWord);
 		return -1;
 	}
-	char cmd[5];
+
+	// Can't be a regular command
+	if((strlen(firstWord) > 4) || (strlen(firstWord) < 2))
+	{
+		return -1;
+	}
+
+	char cmd[6];
 	strcpy(cmd, firstWord);
 
+	// If it contains 5 letters than it can be a WORD command, so we need to check it.
+	// We can assume that the input is correct so if it's not a WORD command it has to
+	// be a regular command.
 	if(strcmp(cmd, ".word") == 0)
 	{
 		return -1;
@@ -445,17 +461,17 @@ int isCMD(char* firstWord)
 
 int whichOptCode(char* Word)
 {
-	//return -1 if there is cmd "WORD"
-	// return 0 if there is any other cmd
-	//return 1 if there is a jump
+	// If the line is a comment or a WORD command
 	if((Word[0] == '#') || (strcmp(Word, "WORD") == 0))
 	{
 		return -1;
 	}
+	// If the line is a jump/branch command
 	if((strcmp(Word, "beq") == 0)||(strcmp(Word, "bgt") == 0)||(strcmp(Word, "ble") == 0)||(strcmp(Word, "bne") == 0)||(strcmp(Word, "jal") == 0)||(strcmp(Word, "jr") == 0))
 	{
 		return 1;
 	}
+	// if there's a regular cmd then return 0
 	return 0;
 }
 
@@ -474,6 +490,7 @@ void deleteFirstWordFromLine(char* line, char* newLine)
 
 	newLine[0] = '\0';
 
+	// We concatenating back without the first word
 	strcat(newLine, t2);
 	strcat(newLine, p);
 	strcat(newLine, t3);
@@ -492,14 +509,9 @@ void readFile(char* path,char* path_out)
 	FILE* f;
 	FILE* output;
 	char hexline[15] = {0};
-	output = fopen(path_out, "w");
-	if(!output)
-	{
-		printf("Can't open File %s\n", path_out);
-		return;
-	}
-	char buffer[MAX_ROW_LENGTH];
-	char bufferCopy[MAX_ROW_LENGTH];
+
+	char buffer[MAX_ROW_LENGTH];		// The line from the input file will be saved to 'buffer'
+	char bufferCopy[MAX_ROW_LENGTH];	// We use strtok, so we do it on a copy of buffer.
 	char newLine[MAX_ROW_LENGTH];
 	char memory[MAX_ROWS][MEMORY_WORD_LENGTH + 1];
 	int maxRowInMem = 0;
@@ -508,50 +520,65 @@ void readFile(char* path,char* path_out)
 	char* thirdWord;
 	char hexLine[MEMORY_WORD_LENGTH + 1];
 	int addr;
+	int tempcheck = 0;
 	char zeros[] = "00000000";
 	int labelIndex, i;
-	char s[] = " ,\t\r\n";
-	f = fopen(path, "r");
 	int cmdCounter = 0;
+	char s[] = " ,\t\r\n";
+	char label[MAX_LABEL_LENGTH];
+
+	// Open the input file
+	f = fopen(path, "r");
 	if(!f)
 	{
 		printf("Can't open File %s\n", path);
 		return;
 	}
-	int tempcheck = 0;
 
+	// Open the output file
+	output = fopen(path_out, "w");
+	if(!output)
+	{
+		printf("Can't open File %s\n", path_out);
+		return;
+	}
+
+	// Create the labelList struct - we save the label with it's row number.
 	labelList* labelsList = createLabelList();
 
-	char label[MAX_LABEL_LENGTH];
 
+	// First we go over the input file line by line to get the labels and their rows number
 	while(fgets(buffer, MAX_ROW_LENGTH, f))
 	{
-		printf("line is: %s", buffer);
-
+		// Extract the first word from the line
 		strcpy(bufferCopy, buffer);
 		firstWord = strtok(bufferCopy, s);
-		//if(!strcmp(buffer, "") || (!strcmp(buffer, "\n")))
+
+		// If the line is empty - continue to next line
 		if(!firstWord)
 		{
 			continue;
 		}
 
+		// Check whether is there a label in this line
 		tempcheck = isThereLabelInIt(buffer,label);
+
+		// If there's only a label:
 		if(tempcheck ==1)
 		{
-//			labels[cmdCounter] = label; //is that the right way to insert a string to an array?
-//			strcpy(labels[cmdCounter], label);
-			printf("We Have label HERE!!!!!!\n");
+			// Adds the label and the row number to the list
 			addLastToList(labelsList, createLabelNode(cmdCounter, label));
 		}
+		// If there's a label and a command
 		else if (tempcheck == 2)
 		{
-//			labels[cmdCounter] = label;
-//			strcpy(labels[cmdCounter], label);
+			// Adds the label and the row number to the list
 			addLastToList(labelsList, createLabelNode(cmdCounter, label));
-			printf("We Have label HERE!!!!!!\n");
+
+			// Advance the rows count - there's a command
 			cmdCounter++;
 		}
+		// If there's only a command so advance the counter
 		else if(tempcheck == 3)
 		{
 			cmdCounter++;
@@ -559,57 +586,58 @@ void readFile(char* path,char* path_out)
 
 	}
 
-	printf("Labels list is: \n");
-	printList(labelsList);
-
 	// initialize Memory
 	for(i = 0; i < MAX_ROWS; i++)
 	{
 		memory[i][0] = '\0';
 	}
 
-	printf("write to output\n");
+	// Go back to the beginning of the file
 	cmdCounter = 0;
 	fseek(f, 0, SEEK_SET);
 	while(fgets(buffer, MAX_ROW_LENGTH, f))
 	{
-		printf("############################################\noutput: line is: %s", buffer);
-
 		strcpy(bufferCopy, buffer);
-
 		firstWord = strtok(bufferCopy, s);
 		secondWord = strtok(NULL, s);
-//		strcpy(bufferCopy, buffer);
+
+		// If the line is empty then continue to next line
 		if(!firstWord)
 		{
 			continue;
 		}
-		printf("firstWord is: (%s)\n", firstWord);
+
+		// If the line is only a comment then continue to next line
 		if(firstWord[0] == '#')
 		{
 			continue;
 		}
+
+		// If the first word is defining a label
 		if(firstWord[strlen(firstWord) - 1] == ':')
 		{
 
+			// If there's a second word than we need to delete the first word from the line in order to parse it
 			if(secondWord)
 			{
 				strcpy(bufferCopy, buffer);
-				printf("bobo, bufferCopy=%s buffer=%s\n", bufferCopy, buffer);
 				deleteFirstWordFromLine(bufferCopy, buffer);
-				printf("gogo, bufferCopy=%s buffer=%s\n", bufferCopy, buffer);
 			}
+			// Else we don't need to parse the line and can continue
 			else
 			{
-				printf("yoyo\n");
 				continue;
 			}
 
 		}
+
+		// If the line is .word command
 		if (!strcmp(firstWord, ".word"))
 		{
-			printf("continue - this is word!!\n");
+			// get the third word in the line
 			thirdWord = strtok(NULL, s);
+
+			// make addr a decimal value of secondWord (address)
 			if(isHex(secondWord))
 			{
 				addr = convertHexRowIndexToDec(secondWord);
@@ -619,6 +647,7 @@ void readFile(char* path,char* path_out)
 				addr = atoi(secondWord);
 			}
 
+			// make the thirdWord to be hex if it isn't and then save it to memory in the 'addr' from before.
 			if(isHex(thirdWord))
 			{
 				thirdWord+=2;
@@ -630,63 +659,72 @@ void readFile(char* path,char* path_out)
 				strcpy(memory[addr], hexLine);
 			}
 
+			// We need to save the maxRow in order to know how much lines to print to memin. if the addr exceeding the
+			// commands counter than we need to update the maxRow number.
 			if(addr > maxRowInMem)
 			{
 				maxRowInMem = addr;
 			}
 
+			// No need to parse this line to memin
 			continue;
 		}
 
 		strcpy(bufferCopy, buffer);
 
+		// If the line has label as immm
 		if(isBufferHasLabel(bufferCopy, label))
 		{
-			printf("this buffer has label %s\n", label);
+			// get the label row number
 			labelIndex = getRowByLabelName(labelsList, label);
-			printf("this buffer has label %s in row %d\n", label, labelIndex);
+
+			// Check the opcode
 			tempcheck = whichOptCode(firstWord);
+
+			// If it's a regular command we need to parse it and save the result to memory in the
+			// current row number.
 			if(tempcheck == 0)
 			{
 				parseCommand(buffer, hexline);
-				//fprintf(output, hexline);
 				strcpy(memory[cmdCounter], hexline);
-//				cmdCounter++;
 			}
-			if(tempcheck == -1)
+			// If it's a WORD command or a comment - shouldn't be as it was taken care of before
+			// and no need to do anything
+			else if(tempcheck == -1)
 			{
 				continue;
 			}
-
-			if(tempcheck == 1)
+			// Has to be a brach/Jump command (tempcheck==1)
+			else
 			{
-				printf("JAL/JR buffer is: %s\n", buffer);
+				// We have a label here so we need to change it to the row number, and then parse the command
+				// and save the result to memory
 				newLine[0] = '\0';
 				changeLine(buffer, labelIndex, newLine);
-				printf("newLine = %s\n", newLine);
 				parseCommand(newLine, hexline);
-				//fprintf(output, hexline);
 				strcpy(memory[cmdCounter], hexline);
 			}
 		}
+		// If there isn't a label in the row we can parse it without any change and then save it to memory.
 		else
 		{
-			printf("no label in this line: %s\n", buffer);
 			parseCommand(buffer, hexline);
-			//fprintf(output, hexline);
 			strcpy(memory[cmdCounter], hexline);
 		}
 
+		// the maxRow is updated only if it's equal to cmdCounter - if not so it must be bigger.
 		if(maxRowInMem == cmdCounter)
 		{
 			maxRowInMem++;
 		}
+		// advance the row number (in memin file)
 		cmdCounter++;
 
 	}
 
-	printf("cmdCounter is: %d\n", cmdCounter);
 
+	// We've to fill the memory with zeroes until maxRowInMem - but only if there isn't anything
+	// else in the memory.
 	for(i = 0; i < maxRowInMem; i++)
 	{
 		if(memory[i][0] == 0)
@@ -701,7 +739,7 @@ void readFile(char* path,char* path_out)
 		fprintf(output, "\n");
 	}
 
-
+	// Closing all the files that was being used
 	fclose(output);
 	fclose(f);
 }

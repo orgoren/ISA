@@ -9,7 +9,6 @@
 
 #define SIM 1
 
-
 int main(int argc, char** argv)
 {
 	//assert(argc == 6);

@@ -11,17 +11,20 @@ int sim (int argc, char** argv)
 	char temp[4];
 	int resultInt;
 	int tempReg[4] = {0};
-	char zeros[] = "00000000";
+	char zeroes[] = "00000000";
 	char memory[MAX_ROWS][MEMORY_WORD_LENGTH + 2];
 	bool endOfFile = false;
 	int reg[17] = {0};
 
+	// Opens memin file
 	memin = fopen(argv[1], "r");
 	if(!memin)
 	{
 		printf("Can't open File %s\n", argv[1]);
-		return 0; // should we return 0 on failure?
+		return 0;
 	}
+
+	// Save to memory the lines from the file memin
 	while(fgets(line, MEMORY_WORD_LENGTH+2, memin))
 	{
 		strcpy(memory[i],line);
@@ -29,13 +32,13 @@ int sim (int argc, char** argv)
 		++i;
 	}
 
+	// Afterwards continue filling the memory with zeroes
 	for(; i < MAX_ROWS; i++)
 	{
-		strcpy(memory[i], zeros);
+		strcpy(memory[i], zeroes);
 	}
 
-	printf("yoyo\n");
-
+	// Open all the output files.
 	for (i = 0; i<4; ++i)
 	{
 		files[i] = fopen(argv[i+2], "w");
@@ -46,56 +49,77 @@ int sim (int argc, char** argv)
 	}
 
 
+	// Start parsing the memin instructions and execute them accordingly
 	i = 0;
 	PC = 0;
 	while(!endOfFile)
 	{
-		printf("###########################################################\n");
 		counter++;
+
+		// Write the instruction to the trace file - before it changes the regs.
 		updateTrace(reg, files[TRACE_OUT], memory[PC]);
-		printf("PC = %d cmm = %s\n", PC, memory[PC]);
+
+		// On Halt
 		if(memory[PC][0] == 'F')
 		{
+			// Write the #inst to count file
 			fprintf(files[COUNT_OUT], "%d\n", counter);
-			printToRegout(reg, files[REG_OUT]);
-			endOfFile = true;
 
+			// Write the regs values to regout file
+			printToRegout(reg, files[REG_OUT]);
+
+			// Write the memory to memout
 			for(i = 0; i < MAX_ROWS; i++)
 			{
 				fprintf(files[MEM_OUT], "%s\n", memory[i]);
 			}
+
+			endOfFile = true; //it'll exit from the while loop
 		}
 		else
 		{
-
-
+			// The instruction is loadWord
 			if(memory[PC][0] == LW)
 			{
+				// get the registers from the instructions and save them to tempReg
 				placeInTempReg(tempReg, memory[PC]);
-				printf("reg[tempReg[1]]=%d\n", reg[tempReg[RS]]);
+
+				// resultInt = (int)mem[R(RS)+imm];
 				resultInt = convertHexToIntTwosCom(memory[reg[tempReg[RS]] + tempReg[IMM]]);
-				printf("fsfds %d\n", resultInt);
-				reg[tempReg[0]] = resultInt;
-				reg[16]++;
+
+				// R(RD) = mem[R(RS)+imm]
+				reg[tempReg[RD]] = resultInt;
+
+				// PC++
+				reg[PC_REG]++;
 			}
+			// The instruction is StoreWord
 			else if(memory[PC][0] == SW)
 			{
+				// get the registers from the instructions and save them to tempReg
 				placeInTempReg(tempReg, memory[PC]);
+
+				// temp = (hex)R(RD)
 				convertDecToHex2(reg[tempReg[RD]], temp, 8);
+
+				// memory[R(RS)+imm] = R(RD)
 				strcpy(memory[reg[tempReg[RS]] + tempReg[IMM]], temp);
 
-				reg[16]++;
+				// PC++
+				reg[PC_REG]++;
 			}
+			// All other instructions are taken care of in 'performCommand' func
 			else
 			{
 				performCommand(memory[PC], reg);
-				printf("new pc is: %d\n", reg[16]);
 			}
 
-			PC = reg[16];
+			// Update the PC value
+			PC = reg[PC_REG];
 		}
 	}
 
+	// Close all files
 	fclose(memin);
 	for(i = 0; i < 4; i++)
 	{
@@ -107,15 +131,13 @@ int sim (int argc, char** argv)
 
 void updateTrace(const int* reg, FILE* traceOut,char* inst)
 {
-	static int a = 1;
-	printf("traced: %d\n", a);
-	a++;
 	char line[(MEMORY_WORD_LENGTH + 2) * (NUM_OF_REGS + 2)];
 	line[0] = '\0';
 
 	char hexLine[9];
-	// reg[16] is the pc
-	convertDecToHex2(reg[16], hexLine, 8);
+
+	convertDecToHex2(reg[PC_REG], hexLine, 8); // hexLine now contains the hex value of PC
+
 	strcat(line, hexLine);
 	strcat(line, " ");
 	strcat(line, inst);
@@ -124,7 +146,7 @@ void updateTrace(const int* reg, FILE* traceOut,char* inst)
 	for(i = 0; i < NUM_OF_REGS; i++)
 	{
 		hexLine[0] = '\0';
-		convertDecToHex2(reg[i], hexLine, 8);
+		convertDecToHex2(reg[i], hexLine, 8);	// hexLine now contains next reg hex value within 8 letters.
 		strcat(line, hexLine);
 		strcat(line, " ");
 	}
@@ -143,7 +165,7 @@ void convertDecToHex2(int a, char* result, int len)
 	int mask = 15;
 	for(i = len - 1; i >= 0; i--)
 	{
-		t = mask & a;
+		t = mask & a;	// t will contain the 4 lsb of a
 		if (t > 9)
 		{
 			result[i] = 'A' + t - 10;
@@ -153,7 +175,7 @@ void convertDecToHex2(int a, char* result, int len)
 			result[i] = '0' + (char)(mask & a);
 		}
 
-		a >>= 4;
+		a >>= 4;		// get next "hex" value - every hex char is defined by 4 bits
 	}
 	result[len] = '\0';
 
@@ -161,17 +183,14 @@ void convertDecToHex2(int a, char* result, int len)
 
 void printToRegout(int* reg, FILE* regout)
 {
-
-	for( int i = 0;i<16;++i)
+	if(!reg || !regout)
 	{
-//		if(i !=15)
-//		{
-			fprintf(regout, "%x\n", reg[i]);
-//		}
-//		else
-//		{
-//			fprintf(regout, "%x", reg[i]);
-//		}
+		return;
+	}
+	int i = 0;
+	for(int i = 0; i < 16 ; ++i)
+	{
+		fprintf(regout, "%x\n", reg[i]);
 	}
 	return;
 }
@@ -190,12 +209,11 @@ void placeInTempReg(int* reg, char* line)
 
 void performCommand(char* line, int* reg)
 {
-	int tempReg[4] = {0};//temReg[0] = rd, tempReg[1] = rs tempReg[2] = rt; tempReg[3] = imm; - decimal
+	int tempReg[4] = {0};
 
 	bool toAdvancePC = true;
 	placeInTempReg(tempReg, line);
-	printf("placed\n");
-	if (line[0] == ADD)//add
+	if (line[0] == ADD)
 	{
 		if(tempReg[RD])
 		{
@@ -248,65 +266,56 @@ void performCommand(char* line, int* reg)
 	}
 	else if (line[0] == BEQ)
 	{
-		printf("beq: reg[tempReg[1]]=%d reg[tempReg[2]]=%d tempReg[3] = %d\n", reg[tempReg[1]], reg[tempReg[2]], tempReg[3]);
 		if(reg[tempReg[RS]] == reg[tempReg[RT]])
 		{
-			reg[16] = tempReg[IMM];
-			toAdvancePC = false;
+			reg[PC_REG] = tempReg[IMM];
+			toAdvancePC = false;		// the pc has changed so no need to advance it
 		}
 	}
 	else if (line[0] == BGT)
 	{
-		printf("bgt: reg[tempReg[1]]=%d reg[tempReg[2]]=%d tempReg[3] = %d\n", reg[tempReg[1]], reg[tempReg[2]], tempReg[3]);
 		if(reg[tempReg[RS]] > reg[tempReg[RT]])
 		{
-			reg[16] = tempReg[IMM];
-			toAdvancePC = false;
+			reg[PC_REG] = tempReg[IMM];
+			toAdvancePC = false;		// the pc has changed so no need to advance it
 		}
 	}
 	else if (line[0] == BLE)
 	{
 		if(reg[tempReg[RS]] <= reg[tempReg[RT]])
 		{
-			reg[16] = tempReg[IMM];
-			toAdvancePC = false;
+			reg[PC_REG] = tempReg[IMM];
+			toAdvancePC = false;		// the pc has changed so no need to advance it
 		}
 	}
 	else if (line[0] == BNE)
 	{
 		if(reg[tempReg[RS]] != reg[tempReg[RT]])
 		{
-			reg[16] = tempReg[IMM];
-			toAdvancePC = false;
+			reg[PC_REG] = tempReg[IMM];
+			toAdvancePC = false;		// the pc has changed so no need to advance it
 		}
 	}
 	else if (line[0] == JAL)
 	{
-		reg[15] = reg[16]+1;
-		printf("jal imm=%d\n", tempReg[IMM]);
-		reg[16] = tempReg[IMM];
-		toAdvancePC = false;
+		reg[RA_REG] = reg[PC_REG]+1;
+		reg[PC_REG] = tempReg[IMM];
+		toAdvancePC = false;		// the pc has changed so no need to advance it
 	}
 	else if (line[0] == JR)
 	{
-		reg[16] = reg[tempReg[RD]];
-		toAdvancePC = false;
+		reg[PC_REG] = reg[tempReg[RD]];
+		toAdvancePC = false;		// the pc has changed so no need to advance it
 	}
 	else if (line[0] == HALT)
 	{
 		return;
 	}
-	else
-	{
-		printf("ERROR!!!!!\n");
-	}
 
 	if(toAdvancePC)
 	{
-		reg[16]++;
+		reg[PC_REG]++;
 	}
-
-	printf("done performing\n");
 }
 
 int convertHexToIntTwosCom(char* tempString)
@@ -323,10 +332,13 @@ int convertHexToIntTwosCom(char* tempString)
 
 	for(i = strlen(tempString) - 1; i>= 0; i--)
 	{
+		// Check if it's the end
 		if(tempString[i] == 0)
 		{
 			break;
 		}
+
+		// t would be the dec of tempString[i]
 		for(j = 0; j < strlen(nums); j++)
 		{
 			if (tempString[i] == nums[j])
@@ -338,9 +350,10 @@ int convertHexToIntTwosCom(char* tempString)
 		ans += (int)pow(16, strlen(tempString) - 1 - i) * t;
 	}
 
+	// Because it's two-complement we need to check whether the msb of the imm is 1
+	// And calculate accordingly
 	if(tempString[0] >= '8')
 	{
-		printf("yoyo\n");
 		ans -= (int)pow(2, strlen(tempString) * 4);
 	}
 
