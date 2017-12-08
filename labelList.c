@@ -9,7 +9,7 @@ labelNode* createLabelNode(int row, char* content)
 	}
 
 	int i;
-	if(content[strlen(content) - 1] == ':')
+	if(content[strlen(content) - 1] == ':') //check if there is a label in this line and if there is replace ':' with '\0'
 	{
 		for(i = 0; i < strlen(content); i++)
 		{
