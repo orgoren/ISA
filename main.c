@@ -13,6 +13,13 @@ int main(int argc, char** argv)
 {
 	//assert(argc == 6);
 
+	int a = -1;
+
+	a <<= 3;
+
+	printf("%d\n", a);
+
+	return 1;
 	if(SIM)
 	{
 		sim(argc, argv);
